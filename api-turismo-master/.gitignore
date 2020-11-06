@@ -1,0 +1,16 @@
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+/vendor
+/public/atractivos
+/public/gastronomia
+/public/imagenes
+/public/imgs
+/public/logos
+/public/mapas
+/public/folletos
+/public/recursos
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

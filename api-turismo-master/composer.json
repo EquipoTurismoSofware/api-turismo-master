@@ -1,0 +1,9 @@
+{
+    "require": {
+        "slim/slim": "3.0",
+        "vlucas/phpdotenv": "^2.5",
+        "firebase/php-jwt": "^5.0",
+        "spipu/html2pdf": "^5.2",
+        "tuupola/base62": "^0.11.1"
+    }
+}
