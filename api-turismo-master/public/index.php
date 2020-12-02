@@ -122,7 +122,7 @@
         }
     });
 
-    //Welcome 1
+    //Welcome
     $app->get('/', function (Request $request, Response $response, array $args) {
         $data_api = array(
             "name" => "api-turismo",
@@ -156,7 +156,8 @@
     require "../src/routes/imagenes.php";
     //Tarifas
     require "../src/routes/tarifas.php";
-
+    //Newsletter
+    require "../src/routes/newsletter.php";
     //Consultas
     require "../src/routes/consultas.php";
 

@@ -4,6 +4,7 @@
         "vlucas/phpdotenv": "^2.5",
         "firebase/php-jwt": "^5.0",
         "spipu/html2pdf": "^5.2",
-        "tuupola/base62": "^0.11.1"
+        "tuupola/base62": "^0.11.1",
+        "phpoffice/phpspreadsheet": "^1.15"
     }
 }
