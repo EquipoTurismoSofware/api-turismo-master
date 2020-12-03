@@ -50,6 +50,9 @@ $app->post("/novedad", function (Request $request, Response $response, array $ar
         "descripcion" => array(
             "tag" => "Descripción"
         ),
+        "descripcionHTML" => array(
+            "tag" => "descripcionHTML"
+        ),
         "latitud" => array(
             "numeric" => true,
             "tag" => "Latitud"
@@ -156,6 +159,9 @@ $app->post("/novedad/{id:[0-9]+}", function (Request $request, Response $respons
         ),
         "descripcion" => array(
             "tag" => "Descripción"
+        ),
+        "descripcionHTML" => array(
+            "tag" => "descripcionHTML"
         ),
         "latitud" => array(
             "numeric" => true,
