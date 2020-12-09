@@ -8,7 +8,7 @@
      //[GET]
     //Todas los Newsletters
     $app->get("/newsletters", function (Request $request, Response $response, array $args) {
-        $xSQL = "SELECT * FROM newsletter";
+        $xSQL = "SELECT * FROM newsletter WHERE activo = 1";
         $respuesta = dbGet($xSQL);
         return $response
             ->withStatus(200)
@@ -29,7 +29,11 @@
         $validar = new Validate();
         $parsedBody = $request->getParsedBody();
         if($validar->validar($parsedBody, $reglas)) {
-            $respuesta = dbPostWithData("newsletter", $parsedBody);
+            $data = array(
+                "email" => $parsedBody["email"],
+                "activo" => 1
+            );
+            $respuesta = dbPostWithData("newsletter", $data);
             return $response
                 ->withStatus(200) //Ok
                 ->withHeader("Content-Type", "application/json")
@@ -48,7 +52,10 @@
 
     //Eliminar un Usuario
     $app->delete("/newsletter/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-        $respuesta = dbDelete("newsletter", $arg["id"]);
+        $data = array(
+            "activo" => 0
+        );
+        $respuesta = dbPatchWithData("newsletter", $args["id"], $data);
         return $response
             ->withStatus(200) //Ok
             ->withHeader("Content-Type", "application/json")
@@ -58,7 +65,7 @@
    //[GET]
     //Todas los Newsletters
     $app->get("/exportmails", function (Request $request, Response $response, array $args) {
-        $xSQL = "SELECT * FROM newsletter";
+        $xSQL = "SELECT * FROM newsletter WHERE activo = 1";
         $respuesta = dbGet($xSQL);
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
