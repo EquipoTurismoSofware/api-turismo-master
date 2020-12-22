@@ -2,6 +2,9 @@
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 // **** Obtener [GET]
 
@@ -257,6 +260,48 @@ $app->get("/guia/{id:[0-9]+}/tarifas", function (Request $request, Response $res
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/exportguias", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT guias.id, guias.idciudad, guias.legajo, guias.nombre, guias.activo, guias.telefono, guias.mail, guias.domicilio, ciudades.nombre AS localidad FROM guias";
+    $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+    $xSQL .= " ORDER BY ciudades.nombre";
+    $respuesta = dbGet($xSQL);
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $x = 2;
+    $sheet->setCellValue('A1', "Nombre alojamientos");
+    $sheet->getStyle('A1')->getFont()->setBold(true);
+    $sheet->setCellValue('B1', "Localidad");
+    $sheet->getStyle('B1')->getFont()->setBold(true);
+    $sheet->setCellValue('C1', "Domicilio");
+    $sheet->getStyle('C1')->getFont()->setBold(true);
+    $sheet->setCellValue('D1', "Email");
+    $sheet->getStyle('D1')->getFont()->setBold(true);
+    $sheet->setCellValue('E1', "Telefono");
+    $sheet->getStyle('E1')->getFont()->setBold(true);
+    $sheet->getStyle('A:B')->getAlignment()->setHorizontal('left');
+    $sheet->getStyle('C:D')->getAlignment()->setHorizontal('left');
+    $sheet->getStyle('E')->getAlignment()->setHorizontal('left');
+
+    foreach($respuesta->data["registros"] as $res) {       
+        $sheet->setCellValue('A'.$x, $res->nombre.'');
+        $sheet->setCellValue('B'.$x, $res->localidad.'');
+        $sheet->setCellValue('C'.$x, $res->domicilio.'');
+        $sheet->setCellValue('D'.$x, $res->mail.'');
+        $sheet->setCellValue('E'.$x, $res->telefono.'');
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+        $sheet->getColumnDimension('C')->setAutoSize(true);
+        $sheet->getColumnDimension('D')->setAutoSize(true);
+        $sheet->getColumnDimension('E')->setAutoSize(true);
+        $x++;
+    }
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="listaAlojamientos.xlsx"');
+
+    $writer = new Xlsx($spreadsheet);         
+    $writer->save('php://output');    
+});
 
 // **** Agregar [POST]
 
