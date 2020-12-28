@@ -174,6 +174,8 @@
     require "../src/routes/novedades.php";
     //Eventos
     require "../src/routes/eventos.php";
+    //Carrusel del home
+    require "../src/routes/carrusel.php";
 
 
     //Cors
