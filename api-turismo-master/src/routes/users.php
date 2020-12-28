@@ -4,6 +4,49 @@
     use Firebase\JWT\JWT;
     //use Tuupola\Base62;
     
+    $app->get("/users", function (Request $request, Response $response, array $args) {
+        $respuesta = dbGet("SELECT * FROM usuarios");
+        return $response
+            ->withStatus(200)
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    });
+
+    $app->patch("/user/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+        $reglas = array(
+            "email" => array(
+                "min" => 5,
+                "max" => 100,
+                "tag" => "Email"
+            )
+        );
+                
+        $parsedBody = $request->getParsedBody();
+        $validar = new Validate();
+        if($validar->validar($parsedBody, $reglas)) {
+            $data = array(
+                "email" => $parsedBody["email"],
+                "password" => password_hash($parsedBody["password"], PASSWORD_BCRYPT),
+                "nombre"  => $parsedBody["nombre"],
+                "activo" => $parsedBody["activo"]
+            );
+            $respuesta = dbPatchWithData("usuarios", $args["id"], $data);     
+            return $response
+                ->withStatus(200) //Ok
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));         
+        } else {
+            $resperr = new stdClass();
+            $resperr->err = true;
+            $resperr->errMsg = "Hay errores en los datos suministrados";
+            $resperr->errMsgs = $validar->errors();
+            return $response
+                ->withStatus(409) //Conflicto
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        }
+    });
+
     $app->post("/user/login", function (Request $request, Response $response, array $args) {
         $reglas = array(
             "email" => array(
@@ -116,7 +159,7 @@
             "email" => array(
                 "min" => 5,
                 "max" => 100,
-                "tag" => "EMail"
+                "tag" => "Email"
             ),
             "password" => array(
                 "max" => 15,
