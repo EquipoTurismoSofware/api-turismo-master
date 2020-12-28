@@ -1416,7 +1416,7 @@ $app->get("/guias/adhiereDosep", function (Request $request, Response $response,
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
     $xSQL .= " INNER JOIN valortipcat ON guias.idvalortipcat = valortipcat.id";
     $xSQL .= " WHERE guias.adhiereCovid > 0";
-    $xSQL .= " WHERE guias.adhiereDosep > 0";
+    $xSQL .= " AND guias.adhiereDosep > 0";
     $xSQL .= " ORDER BY guias.nombre";
     $guias = dbGet($xSQL);
     for ($i = 0; $i < count($guias->data["registros"]); $i++) {
