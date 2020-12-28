@@ -501,6 +501,9 @@ $app->post("/gastronomia/new/{id:[0-9]+}", function (Request $request, Response 
         "imperdible" => array(
             "tag" => "Imperdible"
         ),
+        "adhiereDosep" => array(
+            "tag" => "Adhiere Dosep"
+        )
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
