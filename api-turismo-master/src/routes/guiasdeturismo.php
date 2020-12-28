@@ -72,6 +72,20 @@ $app->get("/guiasturismo", function (Request $request, Response $response, array
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//--- Datos de todos los guias que adhieren DOSEP --//
+
+$app->get("/guiasturismo/adhiereDosep", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT guias_turismo.id, guias_turismo.nombre, categoria, legajo, ambito, telefono, correo, ciudades.nombre as ciudad FROM guias_turismo";
+    $xSQL .= " INNER JOIN ciudades ON ciudades.id = guias_turismo.idciudad";
+    $xSQL .= " WHERE guias_turismo.adhiereDosep > 0";
+    $xSQL .= " ORDER BY ciudades.nombre";   
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Obtener los datos de una determinado guia
 $app->get("/guiasturismo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM guias_turismo WHERE id = " . $args["id"];

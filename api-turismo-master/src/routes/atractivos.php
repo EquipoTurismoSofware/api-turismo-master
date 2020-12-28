@@ -26,6 +26,18 @@ $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $resp
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//---- Datos de un gastronomia + AdhiereDOSEP ---/
+
+$app->get("/gastronomia/adhiereDosep", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM gastronomia WHERE gastronomia.adhiereDosep > 0";
+    $respuesta = dbGet($xSQL);
+    //Color?
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Datos de un gastronomia Particular
 $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response $response, array $args) {
     //Ciudades de la Zona
