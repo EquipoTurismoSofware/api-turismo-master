@@ -445,6 +445,10 @@ $app->post("/guia", function (Request $request, Response $response, array $args)
         "adhiereVoucher" => array(
             "numeric" => true,
             "tag" => "Adhiere adhiereVoucher"
+        ),
+        "adhiereDosep" => array(
+            "numeric" => true,
+            "tag" => "Adhiere adhiereDosep"
         )
     );
     $validar = new Validate();
@@ -532,7 +536,8 @@ $app->post("/guia", function (Request $request, Response $response, array $args)
                     "epoca" => $parsedBody["epoca"],
                     "estado" => $parsedBody["estado"],
                     "adhiereCovid" => $parsedBody["adhiereCovid"],
-                    "adhiereVoucher" => 0
+                    "adhiereVoucher" => 0,
+                    "adhiereDosep" => $parsedBody["adhiereDosep"],
                 );
 
                 $respuesta = dbPostWithData("guias", $data);
@@ -923,6 +928,10 @@ $app->post("/guia/{id:[0-9]+}", function (Request $request, Response $response, 
         "adhiereCovid" => array(
             "numeric" => true,
             "tag" => "Adhiere Covid de Servicio"
+        ),
+        "adhiereDosep" => array(
+            "numeric" => true,
+            "tag" => "Adhiere Dosep de Servicio"
         )
 
     );
@@ -1010,7 +1019,8 @@ $app->post("/guia/{id:[0-9]+}", function (Request $request, Response $response, 
                     "r_vencimiento" => $vencimiento,
                     "epoca" => $parsedBody["epoca"],
                     "estado" => $parsedBody["estado"],
-                    "adhiereCovid" => $parsedBody["adhiereCovid"]
+                    "adhiereCovid" => $parsedBody["adhiereCovid"],
+                    "adhiereDosep" => $parsedBody["adhiereDosep"]
                 );
 
                 $respuesta = dbPatchWithData("guias", $args["id"], $data);
