@@ -26,12 +26,24 @@ $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $resp
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
-//---- Datos de un gastronomia + AdhiereDOSEP ---/
+//---- Datos de una gastronomia + AdhiereDOSEP + imagenes ---/
 
 $app->get("/gastronomia/adhiereDosep", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM gastronomia WHERE gastronomia.adhiereDosep > 0";
     $respuesta = dbGet($xSQL);
     //Color?
+    $color = "722789"; //Violeta Oscuro
+
+    for ($i = 0; $i < count($respuesta->data["registros"]); $i++) {
+        $respuesta->data["registros"][$i]->color = $color; //Set de color
+        $xSQL = "SELECT imagen FROM gastronomia_imgs WHERE idgastronomia = " . $respuesta->data["registros"][$i]->id;
+        $imagenes = dbGet($xSQL);
+        if ($imagenes->data["count"] > 0) {
+            $respuesta->data["registros"][$i]->imagenes = $imagenes->data["registros"];
+        } else {
+            $respuesta->data["registros"][$i]->imagenes = [array("imagen" => "default.jpg")];
+        }
+    }
     return $response
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
