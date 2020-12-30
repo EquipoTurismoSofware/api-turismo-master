@@ -176,6 +176,8 @@
     require "../src/routes/eventos.php";
     //Carrusel del home
     require "../src/routes/carrusel.php";
+    // Agencia de Viajes 
+    require "../src/routes/agencias.php";
 
 
     //Cors
