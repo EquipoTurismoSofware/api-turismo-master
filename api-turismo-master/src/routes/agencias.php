@@ -15,6 +15,8 @@ $app->get("/agencias/viaje", function (Request $request, Response $response, arr
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+
+
 $app->get("/agencias/adhiereCovid", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT agencias_viaje.*, ciudades.nombre AS ciudad FROM agencias_viaje";
     $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
@@ -190,6 +192,14 @@ $app->post("/updagencias/{id:[0-9]+}", function (Request $request, Response $res
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
+});
+
+$app->delete("/agencias/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $respuesta = dbDelete("agencias_viaje", $arg["id"]);
+    return $response
+        ->withStatus(200) //Ok
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
 ?>
