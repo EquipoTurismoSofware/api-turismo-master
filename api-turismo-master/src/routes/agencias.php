@@ -15,6 +15,18 @@ $app->get("/agencias/viaje", function (Request $request, Response $response, arr
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/agencias/adhiereCovid", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT agencias_viaje.*, ciudades.nombre AS ciudad FROM agencias_viaje";
+    $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
+    $xSQL .= " WHERE agencias_viaje.adhiereCovid > 0";
+    $xSQL .= " ORDER BY agencias_viaje.idlocalidad";
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200) 
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Guías de Turismo
 
 $app->post("/addagenciadeviajes", function (Request $request, Response $response, array $args) {
