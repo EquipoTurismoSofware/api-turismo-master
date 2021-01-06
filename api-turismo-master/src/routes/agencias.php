@@ -195,7 +195,8 @@ $app->post("/updagencias/{id:[0-9]+}", function (Request $request, Response $res
 });
 
 $app->delete("/agencias/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $respuesta = dbDelete("agencias_viaje", $arg["id"]);
+    $respuesta = dbDelete("agencias_viaje", $args["id"]);
+   
     return $response
         ->withStatus(200) //Ok
         ->withHeader("Content-Type", "application/json")
