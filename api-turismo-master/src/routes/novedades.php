@@ -16,6 +16,16 @@ $app->get("/novedades/{cantidad:[0-9]+}", function (Request $request, Response $
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//Obtener las últimas X Novedades
+$app->get("/novedades", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM novedades ORDER BY fecha DESC";
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Obtener los datos de una determinada Novedades
 $app->get("/novedad/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM novedades WHERE id = " . $args["id"];

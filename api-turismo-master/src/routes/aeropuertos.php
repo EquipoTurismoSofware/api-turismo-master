@@ -19,7 +19,7 @@ $app->get("/aeropuertos/ciudades", function (Request $request, Response $respons
     $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM aeropuertos";
     $xSQL .= " INNER JOIN ciudades ON aeropuertos.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
-    $xSQL .= " ORDER BY aeropuertos.idlocalidad";
+    $xSQL .= " ORDER BY ciudades.id";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 

@@ -64,7 +64,7 @@ $app->get("/guiasturismo/ciudades", function (Request $request, Response $respon
     $xSQL .= " INNER JOIN ciudades ON guias_turismo.idciudad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
     $xSQL .= " WHERE guias_turismo.adhiereCovid > 0";
-    $xSQL .= " ORDER BY guias_turismo.idciudad";
+    $xSQL .= " ORDER BY ciudades.id";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 

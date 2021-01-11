@@ -19,7 +19,7 @@ $app->get("/casascambio/ciudades", function (Request $request, Response $respons
     $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM casas_cambio";
     $xSQL .= " INNER JOIN ciudades ON casas_cambio.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
-    $xSQL .= " ORDER BY casas_cambio.idlocalidad";
+    $xSQL .= " ORDER BY ciudades.id";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 
