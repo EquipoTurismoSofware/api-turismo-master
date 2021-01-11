@@ -153,8 +153,8 @@ $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response 
 $app->get("/ceveceriafull", function (Request $request, Response $response, array $args) {
 
 
-    $xSQL = "SELECT   gastronomia.* FROM gastronomia";
-
+    $xSQL = "SELECT  ciudades.nombre AS ciudad, gastronomia.* FROM gastronomia";
+    $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
     $xSQL .=" WHERE gastronomia.tipo = 'Camino de la Cerveza Artesanal de Sierras Centrales' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Los Comechingones' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Norte Puntano' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Conlara' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Circuito del Morro'";
     $gastronomia = dbGet($xSQL);
     //Color?
