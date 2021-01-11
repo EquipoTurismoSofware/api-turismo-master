@@ -17,7 +17,15 @@ $app->get("/ciudad/{id:[0-9]+}/gastronomia", function (Request $request, Respons
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 //Ciudades
-
+$app->get("/ciudad/{id:[0-9]+}/imagen", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT ciudades.foto, ciudades.id FROM ciudades";
+    $xSQL .= " WHERE ciudades.id = " . $args["id"];
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
 //Todos los Atractivos de una Ciudad (Localidad)
 $app->get("/ciudad/{id:[0-9]+}/atractivos", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM atractivos";
@@ -252,6 +260,10 @@ $app->post("/ciudad", function (Request $request, Response $response, array $arg
             "max" => 250,
             "tag" => "URL Video"
         ),
+        "foto" => array(
+            "max" => 250,
+            "tag" => "URL Foto"
+        ),
         "mdireccion" => array(
             "max" => 50,
             "tag" => "Municipio Dirección"
@@ -296,6 +308,7 @@ $app->post("/ciudad", function (Request $request, Response $response, array $arg
             "descripcion" => $parsedBody["descripcion"],
             "descripcionHTML" => $parsedBody["descripcionHTML"],
             "video" => $parsedBody["video"],
+            "foto" => $parsedBody["foto"],
             "mdireccion" => $parsedBody["mdireccion"],
             "mtelefono" => $parsedBody["mtelefono"],
             "minterno" => $parsedBody["minterno"],
@@ -323,7 +336,74 @@ $app->post("/ciudad", function (Request $request, Response $response, array $arg
     }
 });
 
+$app->post("/ciudad/{id:[0-9]+}/imagen", function (Request $request, Response $response, array $args) {
+    $resperr = new stdClass();
+    $resperr->err = true;
+    $directory = $this->get("upload_directory_ciudadesFotos");
+    $tamanio_maximo = $this->get("max_file_size");
+    $formatos_permitidos = $this->get("allow_file_format");
+    $uploadedFiles = $request->getUploadedFiles();
+    if (isset($uploadedFiles["imgup"])) {
+        // handle single input with single file upload
+        $uploadedFile = $uploadedFiles["imgup"];
+        if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+            if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                    $filename = moveUploadedFile($directory, $uploadedFile, 0, $args["id"]);                
+                        $data = array(                         
+                            "foto" => $filename                          
+                        );
+                        
+                        $respuesta = dbPatchWithData("ciudades", $args["id"], $data);
+                    
+                        if (!$respuesta->err) {
+                            return $response
+                                ->withStatus(201)
+                                ->withHeader("Content-Type", "application/json")
+                                ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+                        } else {
+                            $respuesta->errMsg = "No se pudo papu";
+                            return $response
+                                ->withStatus(409) //Conflicto
+                                ->withHeader("Content-Type", "application/json")
+                                ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+                        }
+                    } else {
+                        $resperr->errMsg = "No es un formato de imagen admitido.";
+                    }
+                } else {
+                    $resperr->errMsg = "La imagen no debe superar los 4 MB.";
+                }
+            }
+        } else {
+            $resperr->errMsg = "No se suministro ninguna imagen.";
+        }
+        return $response
+            ->withStatus(409) //Conflicto
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    });
+    
 
+$app->delete("/ciudad/imagen/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $data = array(
+        "id" => $args["id"],
+        "foto" => $filename
+    );
+    
+    $respuesta = dbPatchWithData("ciudades", $args["id"], $data);
+    if (!$respuesta->err) {
+        return $response
+            ->withStatus(201)
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    } else {
+        return $response
+            ->withStatus(409) //Conflicto
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    }
+});
 
 //[PATCH]
 
@@ -375,6 +455,10 @@ $app->patch("/ciudad/{id:[0-9]+}", function (Request $request, Response $respons
         "video" => array(
             "max" => 250,
             "tag" => "URL Video"
+        ),
+        "foto" => array(
+            "max" => 250,
+            "tag" => "URL Foto"
         ),
         "mdireccion" => array(
             "max" => 50,
@@ -444,6 +528,7 @@ $app->patch("/ciudad/{id:[0-9]+}", function (Request $request, Response $respons
             "descripcion" => $parsedBody["descripcion"],
             "descripcionHTML" => $parsedBody["descripcionHTML"],
             "video" => $parsedBody["video"],
+            "foto" => $parsedBody["foto"],
             "mdireccion" => $parsedBody["mdireccion"],
             "mtelefono" => $parsedBody["mtelefono"],
             "minterno" => $parsedBody["minterno"],

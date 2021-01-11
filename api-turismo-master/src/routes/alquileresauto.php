@@ -4,10 +4,10 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 //Obtener todas las Agencias de viajes 
-$app->get("/agencias/viaje", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT agencias_viaje.*, ciudades.nombre AS ciudad FROM agencias_viaje";
-    $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
-    $xSQL .= " ORDER BY agencias_viaje.idlocalidad";
+$app->get("/alquileresauto", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT alquileres_auto.*, ciudades.nombre AS ciudad FROM alquileres_auto";
+    $xSQL .= " INNER JOIN ciudades ON alquileres_auto.idlocalidad = ciudades.id";
+    $xSQL .= " ORDER BY alquileres_auto.idlocalidad";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 
@@ -15,12 +15,11 @@ $app->get("/agencias/viaje", function (Request $request, Response $response, arr
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
-$app->get("/agencias/ciudades", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM agencias_viaje";
-    $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
+$app->get("/alquileresauto/ciudades", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.id, ciudades.nombre AS ciudad, zonas_ciudades.idzona AS ZonaId FROM alquileres_auto";
+    $xSQL .= " INNER JOIN ciudades ON alquileres_auto.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
-    $xSQL .= " WHERE agencias_viaje.adhiereCovid > 0";
-    $xSQL .= " ORDER BY agencias_viaje.idlocalidad";
+    $xSQL .= " ORDER BY alquileres_auto.idlocalidad";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 
@@ -28,53 +27,20 @@ $app->get("/agencias/ciudades", function (Request $request, Response $response, 
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
-$app->get("/agencias/adhiereCovid", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT agencias_viaje.*, ciudades.nombre AS ciudad FROM agencias_viaje";
-    $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
-    $xSQL .= " WHERE agencias_viaje.adhiereCovid > 0";
-    $xSQL .= " ORDER BY agencias_viaje.idlocalidad";
-    $respuesta = dbGet($xSQL);
-    return $response
-        ->withStatus(200) 
-        ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-});
-
-$app->get("/agencias/adhiereDosep", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT agencias_viaje.*, ciudades.nombre AS ciudad FROM agencias_viaje";
-    $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
-    $xSQL .= " WHERE agencias_viaje.adhiereDosep > 0";
-    $xSQL .= " ORDER BY agencias_viaje.idlocalidad";
-    $respuesta = dbGet($xSQL);
-    return $response
-        ->withStatus(200) 
-        ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-});
 //Guías de Turismo
 
-$app->post("/addagenciadeviajes", function (Request $request, Response $response, array $args) {
+$app->post("/addalquilerauto", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "idlocalidad" => array(
             "numeric" => true,
             "mayorcero" => 0,
             "tag" => "Identificador de Ciudad"
         ),
-        "legajo" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
-            "tag" => "Identificador de legajo"
-        ),
-        "registro" => array(
-            "min" => 1,
-            "max" => 150,
-            "tag" => "registro"
-        ),
         "nombre" => array(
             "max" => 150,
             "tag" => "nombre"
         ),
-        "domicilio" => array(
+        "direccion" => array(
             "max" => 150,
             "tag" => "domicilio"
         ),
@@ -82,27 +48,23 @@ $app->post("/addagenciadeviajes", function (Request $request, Response $response
             "max" => 150,
             "tag" => "telefono"
         ),
-        "mail" => array(
-            "max" => 150,
-            "tag" => "mail"
-        ),
         "web" => array(
             "max" => 150,
             "tag" => "web"
         ),
-        "representante" => array(
+        "mail" => array(
             "max" => 150,
-            "tag" => "representante"
+            "tag" => "mail"
         ),
-        "adhiereDosep" => array(
+        "horario" => array(
             "max" => 150,
-            "tag" => "adhiereDosep"
+            "tag" => "horario"
         ),
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
-        $respuesta = dbPostWithData("agencias_viaje", $parsedBody);
+        $respuesta = dbPostWithData("alquileres_auto", $parsedBody);
         return $response
             ->withStatus(201) //Created
             ->withHeader("Content-Type", "application/json")
@@ -118,9 +80,10 @@ $app->post("/addagenciadeviajes", function (Request $request, Response $response
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 });
+
 /* Muestras los datos de una agencia determinada */
-$app->get("/agenciasviaje/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM agencias_viaje WHERE id = " . $args["id"];
+$app->get("/alquilerauto/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM alquileres_auto WHERE id = " . $args["id"];
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
@@ -129,28 +92,18 @@ $app->get("/agenciasviaje/{id:[0-9]+}", function (Request $request, Response $re
 });
 
 //Guardar los cambios de una un guia
-$app->post("/updagencias/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+$app->post("/updatealquilerauto/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "idlocalidad" => array(
             "numeric" => true,
             "mayorcero" => 0,
             "tag" => "Identificador de Ciudad"
         ),
-        "legajo" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
-            "tag" => "Identificador de legajo"
-        ),
-        "registro" => array(
-            "min" => 1,
-            "max" => 150,
-            "tag" => "registro"
-        ),
         "nombre" => array(
             "max" => 150,
             "tag" => "nombre"
         ),
-        "domicilio" => array(
+        "direccion" => array(
             "max" => 150,
             "tag" => "domicilio"
         ),
@@ -158,22 +111,18 @@ $app->post("/updagencias/{id:[0-9]+}", function (Request $request, Response $res
             "max" => 150,
             "tag" => "telefono"
         ),
-        "mail" => array(
-            "max" => 150,
-            "tag" => "mail"
-        ),
         "web" => array(
             "max" => 150,
             "tag" => "web"
         ),
-        "representante" => array(
+        "mail" => array(
             "max" => 150,
-            "tag" => "representante"
+            "tag" => "mail"
         ),
-        "adhiereDosep" => array(
+        "horario" => array(
             "max" => 150,
-            "tag" => "adhiereDosep"
-        )
+            "tag" => "horario"
+        ),
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
@@ -181,7 +130,7 @@ $app->post("/updagencias/{id:[0-9]+}", function (Request $request, Response $res
         //Imágenes
         //Eliminar de $parsedBody id
         unset($parsedBody["id"]);
-        $respuesta = dbPatchWithData("agencias_viaje", $args["id"], $parsedBody);
+        $respuesta = dbPatchWithData("alquileres_auto", $args["id"], $parsedBody);
         if ($respuesta->err) {
             return $response
                 ->withStatus(409) //Conflicto
@@ -205,8 +154,8 @@ $app->post("/updagencias/{id:[0-9]+}", function (Request $request, Response $res
     }
 });
 
-$app->delete("/agencias/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $respuesta = dbDelete("agencias_viaje", $args["id"]);
+$app->delete("/alquilerauto/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $respuesta = dbDelete("alquileres_auto", $args["id"]);
    
     return $response
         ->withStatus(200) //Ok
