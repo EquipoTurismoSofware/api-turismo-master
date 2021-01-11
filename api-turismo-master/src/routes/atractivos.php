@@ -80,6 +80,16 @@ $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response 
         ->write(json_encode($respuestaFinal, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/ceveceriafull", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM gastronomia WHERE gastronomia.tipo = 'Camino de la Cerveza Artesanal de Sierras Centrales' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Los Comechingones' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Norte Puntano' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Conlara' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Circuito del Morro'";
+    $respuesta = dbGet($xSQL);
+    //Color?
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 
 
 //DATOS DE UN TIPO EN ESPECIAL 
