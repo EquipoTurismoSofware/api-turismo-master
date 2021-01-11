@@ -151,13 +151,26 @@ $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response 
 });
 
 $app->get("/ceveceriafull", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM gastronomia WHERE gastronomia.tipo = 'Camino de la Cerveza Artesanal de Sierras Centrales' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Los Comechingones' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Norte Puntano' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Conlara' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Circuito del Morro'";
-    $respuesta = dbGet($xSQL);
+
+
+    $xSQL = "SELECT   gastronomia.* FROM gastronomia";
+
+    $xSQL .=" WHERE gastronomia.tipo = 'Camino de la Cerveza Artesanal de Sierras Centrales' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Los Comechingones' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Norte Puntano' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Conlara' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Circuito del Morro'";
+    $gastronomia = dbGet($xSQL);
     //Color?
+    for ($i = 0; $i < count($gastronomia->data["registros"]); $i++) {
+        //Redes Sociales
+ 
+        $xSQL = "SELECT imagen FROM gastronomia_imgs";
+        $xSQL .= " WHERE idgastronomia = " . $gastronomia->data["registros"][$i]->id;
+        $fotos = dbGet($xSQL);
+        $gastronomia->data["registros"][$i]->fotos = $fotos->data["registros"];
+    }
+
     return $response
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        ->write(json_encode($gastronomia, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
 
