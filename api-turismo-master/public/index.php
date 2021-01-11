@@ -33,6 +33,7 @@
     $container["upload_directory_atractivo"] = __DIR__ . DIRECTORY_SEPARATOR . "atractivos";
     $container["upload_directory_gastronomia"] = __DIR__ . DIRECTORY_SEPARATOR . "gastronomia";
     $container["upload_directory_novedades"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "novedades";
+    $container["upload_directory_ciudadesFotos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "ciudadesFotos";
     $container["upload_directory_eventos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "eventos";
 
     //Zonas
@@ -160,12 +161,14 @@
     require "../src/routes/newsletter.php";
     //Consultas
     require "../src/routes/consultas.php";
-
     //Oficinas de Turísmo
     require "../src/routes/oficinas.php";
-
-    //Página Web
-
+    //Aeropuertos
+    require "../src/routes/aeropuertos.php";
+    //Casas de cambios
+    require "../src/routes/casasdecambio.php";
+    //Alquileres de autos
+    require "../src/routes/alquileresauto.php";
     //Zonas
     require "../src/routes/zonas.php";
     //Atractivos

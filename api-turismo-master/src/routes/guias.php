@@ -39,7 +39,8 @@ $app->get("/guias/adheridos", function (Request $request, Response $response, ar
 
 //Obtener todas las Guias (Full)
 $app->get("/guias/full", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.domicilio, ciudades.caracteristica, guias.telefono, guias.mail, guias.web, guias.latitud, guias.longitud, guias.descripcion, guias.logo, tipos.descripcion AS tipo, valortipcat.descripcion AS valor FROM guias";
+  
+     $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.domicilio, ciudades.caracteristica, guias.telefono, guias.mail, guias.web, guias.latitud, guias.longitud, guias.descripcion, guias.logo, tipos.descripcion AS tipo, valortipcat.descripcion AS valor, ciudades.nombre AS ciudad FROM guias";
     $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
     $xSQL .= " INNER JOIN valortipcat ON guias.idvalortipcat = valortipcat.id";
