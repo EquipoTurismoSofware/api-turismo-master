@@ -59,6 +59,18 @@ $app->post("/guiasturismox", function (Request $request, Response $response, arr
     }
 });
 
+$app->get("/guiasturismo/ciudades", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM guias_turismo";
+    $xSQL .= " INNER JOIN ciudades ON guias_turismo.idciudad = ciudades.id";
+    $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
+    $xSQL .= " WHERE guias_turismo.adhiereCovid > 0";
+    $xSQL .= " ORDER BY guias_turismo.idciudad";
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200) 
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
 
 //Datos de todos los guias
 $app->get("/guiasturismo", function (Request $request, Response $response, array $args) {
