@@ -150,6 +150,31 @@ $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response 
         ->write(json_encode($respuestaFinal, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/gastronomia/full", function (Request $request, Response $response, array $args) {
+    //Ciudades de la Zona
+    $xSQL = "SELECT zonas_ciudades.idciudad, ciudades.nombre as ciudad,gastronomia.* FROM zonas_ciudades";
+    $xSQL .= " INNER JOIN ciudades ON zonas_ciudades.idciudad = ciudades.id";
+    $xSQL .= " INNER JOIN gastronomia ON gastronomia.idlocalidad = ciudades.id";
+    $xSQL .= " WHERE zonas_ciudades.idzona = '4' OR  zonas_ciudades.idzona = '5' OR  zonas_ciudades.idzona = '8' OR  zonas_ciudades.idzona = '1' OR  zonas_ciudades.idzona = '9'";
+    $xSQL .= " ORDER BY ciudades.nombre";
+    $ciudades_zona = dbGet($xSQL);
+
+    for ($i = 0; $i < count($ciudades_zona->data["registros"]); $i++) {
+        //Redes Sociales
+ 
+        $xSQL = "SELECT imagen FROM gastronomia_imgs";
+        $xSQL .= " WHERE idgastronomia = " . $ciudades_zona->data["registros"][$i]->id;
+        $fotos = dbGet($xSQL);
+        $ciudades_zona->data["registros"][$i]->fotos = $fotos->data["registros"];
+    }
+
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($ciudades_zona, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 $app->get("/ceveceriafull", function (Request $request, Response $response, array $args) {
 
 
