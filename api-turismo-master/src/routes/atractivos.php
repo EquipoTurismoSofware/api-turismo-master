@@ -10,6 +10,11 @@ $app->get("/atractivo/{id:[0-9]+}", function (Request $request, Response $respon
     $xSQL = "SELECT * FROM atractivos WHERE id = " . $args["id"];
     $respuesta = dbGet($xSQL);
     //Color?
+   
+        //Redes Sociales
+ 
+     
+ 
     return $response
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
@@ -20,6 +25,11 @@ $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $resp
     $xSQL = "SELECT * FROM gastronomia WHERE id = " . $args["id"];
     $respuesta = dbGet($xSQL);
     //Color?
+    $xSQL = "SELECT imagen FROM gastronomia_imgs";
+    $xSQL .= " WHERE idgastronomia = " . $respuesta->data["registros"][0]->id;
+    $fotos = dbGet($xSQL);
+    $respuesta->data["registros"][0]->fotos = $fotos->data["registros"];
+
     return $response
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
