@@ -37,7 +37,23 @@ $app->get("/guias/adheridos", function (Request $request, Response $response, ar
 });
 
 
+/*$app->get("/guias/full", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, galeria.imagen, ciudades.nombre AS ciudad FROM guias";
+    $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+    $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
+    $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
+    $xSQL .= " WHERE idGoG = 1";
+    $xSQL .= " ORDER BY guias.nombre";
+    $guias = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+*/
 //Obtener todas las Guias (Full)
+
 $app->get("/guias/full", function (Request $request, Response $response, array $args) {
   
      $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.domicilio, ciudades.caracteristica, guias.telefono, guias.mail, guias.web, guias.latitud, guias.longitud, guias.descripcion, guias.logo, tipos.descripcion AS tipo, valortipcat.descripcion AS valor, ciudades.nombre AS ciudad FROM guias";
@@ -45,6 +61,7 @@ $app->get("/guias/full", function (Request $request, Response $response, array $
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
     $xSQL .= " INNER JOIN valortipcat ON guias.idvalortipcat = valortipcat.id";
     $xSQL .= " ORDER BY guias.nombre";
+    $xSQL .= " LIMIT 20";
     $guias = dbGet($xSQL);
     for ($i = 0; $i < count($guias->data["registros"]); $i++) {
         //Redes Sociales
@@ -78,7 +95,48 @@ $app->get("/guias/full", function (Request $request, Response $response, array $
         ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/guia/galeriaupdate", function (Request $request, Response $response, array $args) {
+  
+    $xSQL = "SELECT idgaleria FROM galeria";
+   $xSQL .= " GROUP BY idgaleria";
+
+   $idsgaleria = dbGet($xSQL);
+
+   for ($i = 0; $i < count($idsgaleria->data["registros"]); $i++) {
+        $xSQL = "SELECT id FROM galeria";
+        $xSQL .= " WHERE idgaleria = ". $idsgaleria->data["registros"][$i]->idgaleria;
+        $xSQL .= " ORDER BY id"; 
+        $itemsgaleria = dbGet($xSQL);
+        //$idsgaleria->data["registros"][$i]->id = $itemsgaleria->data["registros"];
+        for ($i = 1; $i < (count($itemsgaleria->data["registros"])+1); $i++) {
+            $xSQL = "UPDATE galeria SET numeracion=". $i;
+        }
+   }
+
+   return $response
+       ->withStatus(200)
+       ->withHeader("Content-Type", "application/json")
+       ->write(json_encode($idsgaleria, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+/*
+$app->get("/guias/adheridosACovid", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, galeria.imagen, ciudades.nombre AS ciudad FROM guias";
+    $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+    $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
+    $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
+    $xSQL .= " WHERE idGoG = 1 AND guias.adhiereCovid > 0";
+    $xSQL .= " GROUP BY guias.id";
+    $xSQL .= " ORDER BY guias.nombre";
+    $guias = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+}); */
 //Obtener todas las Guias que adhieren a covid 
+
 $app->get("/guias/adheridosACovid", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.domicilio, ciudades.caracteristica, guias.telefono, guias.mail, guias.web, guias.latitud, guias.longitud, guias.descripcion, guias.logo, tipos.descripcion AS tipo, valortipcat.descripcion AS valor FROM guias";
     $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
@@ -235,6 +293,15 @@ $app->get("/guia/{id:[0-9]+}/imagenes", function (Request $request, Response $re
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/guia/{id:[0-9]+}/imagen", function (Request $request, Response $response, array $args) {
+    //idGoG: 1 => Hospedaje, 2 => Gastronomía
+    $respuesta = dbGet("SELECT id, imagen FROM galeria WHERE idGoG = 1 AND idgaleria = " . $args["id"] . " ORDER BY id LIMIT 1");
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Obtener las Redes Sociales de una Guía en particular
 $app->get("/guia/{id:[0-9]+}/redes", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT guia_redes.id, guia_redes.idred, guia_redes.link, redes.nombre, redes.icono FROM guia_redes";
@@ -303,7 +370,23 @@ $app->get("/exportguias", function (Request $request, Response $response, array 
     $writer = new Xlsx($spreadsheet);         
     $writer->save('php://output');    
 });
+/*
+$app->get("/guias/adhiereDosep", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, galeria.imagen, ciudades.nombre AS ciudad FROM guias";
+    $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+    $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
+    $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
+    $xSQL .= " WHERE idGoG = 1 AND guias.adhiereCovid > 0 AND guias.adhiereDosep > 0";
+    $xSQL .= " GROUP BY guias.id";
+    $xSQL .= " ORDER BY guias.nombre";
+    $guias = dbGet($xSQL);
 
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+*/
 //--Obtener todas las Guias que adhieren a covid --//
 //-- Obtener todas las Guias que adhiere DOSEP  ---//
 
