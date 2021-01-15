@@ -42,8 +42,10 @@ $app->get("/guias/adheridos", function (Request $request, Response $response, ar
     $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
     $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
-    $xSQL .= " WHERE idGoG = 1";
+    $xSQL .= " WHERE idGoG = 1 AND numeracion = 1";
+    $xSQL .= " LIMIT 50";
     $xSQL .= " ORDER BY guias.nombre";
+    
     $guias = dbGet($xSQL);
 
     return $response
@@ -95,23 +97,28 @@ $app->get("/guias/full", function (Request $request, Response $response, array $
         ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//NO EJECUTAR A MENOS QUE QUIERA ROMPER TODO, NAH CHISTE, SOLO EJECUTAR CUANDO QUIERAN CAMBIAR EL CAMPO NUMERACION DE TODAS LAS GALERIAS
 $app->get("/guia/galeriaupdate", function (Request $request, Response $response, array $args) {
-  
+    $db = new DB();
+    $db->connect();
+
     $xSQL = "SELECT idgaleria FROM galeria";
    $xSQL .= " GROUP BY idgaleria";
+   $xSQL .= " ORDER BY idgaleria";
 
    $idsgaleria = dbGet($xSQL);
 
    for ($i = 0; $i < count($idsgaleria->data["registros"]); $i++) {
         $xSQL = "SELECT id FROM galeria";
-        $xSQL .= " WHERE idgaleria = ". $idsgaleria->data["registros"][$i]->idgaleria;
-        $xSQL .= " ORDER BY id"; 
+        $xSQL .= " WHERE idgaleria = ". $idsgaleria->data["registros"][$i]->idgaleria; 
         $itemsgaleria = dbGet($xSQL);
         //$idsgaleria->data["registros"][$i]->id = $itemsgaleria->data["registros"];
-        for ($i = 1; $i < (count($itemsgaleria->data["registros"])+1); $i++) {
-            $xSQL = "UPDATE galeria SET numeracion=". $i;
+        for ($x = 1; $x < (count($itemsgaleria->data["registros"])+1); $x++) {
+            $xSQL = "UPDATE galeria SET numeracion = ".$x. " WHERE id = ". $itemsgaleria->data["registros"][$x-1]->id;
+            $db->consultar($xSQL);
         }
    }
+   $db->close();
 
    return $response
        ->withStatus(200)
