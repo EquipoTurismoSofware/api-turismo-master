@@ -122,7 +122,10 @@
 									if(!$this->errnum) {
 										if($valor <= 0) {
 											if(isset($reglas["tag"])) {
-												$this->msgsError[] = $reglas["tag"] . " debe ser mayor que cero.";
+												if($reglas["tag"]==="Id de Ciudad"){
+													$this->msgsError[] = "Por Favor seleccione una Ciudad";	
+												}else{
+												$this->msgsError[] = $reglas["tag"] . " debe ser mayor que cero.";}
 											} else {
 												$this->msgsError[] = $item . " debe ser mayor que cero.";
 											}
