@@ -31,6 +31,7 @@
     $container["upload_directory"] = __DIR__ . DIRECTORY_SEPARATOR . "imagenes";
     $container["upload_directory_logo"] = __DIR__ . DIRECTORY_SEPARATOR . "logos";
     $container["upload_directory_atractivo"] = __DIR__ . DIRECTORY_SEPARATOR . "atractivos";
+    $container["upload_directory_carrusel"] = __DIR__ . DIRECTORY_SEPARATOR . "carrusel";
     $container["upload_directory_gastronomia"] = __DIR__ . DIRECTORY_SEPARATOR . "gastronomia";
     $container["upload_directory_novedades"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "novedades";
     $container["upload_directory_ciudadesFotos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "ciudadesFotos";
