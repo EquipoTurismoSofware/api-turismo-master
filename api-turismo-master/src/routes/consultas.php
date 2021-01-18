@@ -115,6 +115,22 @@ $app->post("/filtro", function (Request $request, Response $response, array $arg
         ->withHeader("Content-Type", "application/pdf");
 });
 
+// Exporta a Excel Alojamientos 
+
+$app->get("/exportaguias", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT guias.id, guias.idciudad, guias.legajo, guias.nombre, guias.activo, guias.telefono, guias.mail, guias.domicilio, guias.habitaciones";
+    $xSQL .=", guias.camas, guias.plazas, guias.web, guias.lupdate, guias.p_nombre, guias.p_telefono, guias.p_mail, guias.p_domicilio";
+    $xSQL .=", guias.estado, guias.adhiereCovid, guias.adhiereDosep, ciudades.nombre AS localidad FROM guias";
+    $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+    $xSQL .= " ORDER BY ciudades.nombre";
+    $respuesta = dbGet($xSQL);
+    return $response
+    ->withStatus(200)
+    ->withHeader("Content-Type", "application/json")
+    ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+
 //Detalles de la Guia
 $app->get("/detalles/{id}", function (Request $request, Response $response, array $args) {
     $reg_guia = dbGet($args["id"]);
