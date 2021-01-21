@@ -63,7 +63,6 @@ $app->get("/guias/full", function (Request $request, Response $response, array $
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
     $xSQL .= " INNER JOIN valortipcat ON guias.idvalortipcat = valortipcat.id";
     $xSQL .= " ORDER BY guias.nombre";
-    $xSQL .= " LIMIT 20";
     $guias = dbGet($xSQL);
     for ($i = 0; $i < count($guias->data["registros"]); $i++) {
         //Redes Sociales
@@ -95,6 +94,22 @@ $app->get("/guias/full", function (Request $request, Response $response, array $
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+$app->get("/guias/list", function (Request $request, Response $response, array $args) {
+  
+    $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre,  ciudades.nombre AS ciudad,galeria.imagen FROM guias";
+   $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+   $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
+   $xSQL .= " WHERE galeria.numeracion = 1";
+   $xSQL .= " ORDER BY guias.id";
+
+   $guias = dbGet($xSQL);
+
+   return $response
+       ->withStatus(200)
+       ->withHeader("Content-Type", "application/json")
+       ->write(json_encode($guias, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
 //NO EJECUTAR A MENOS QUE QUIERA ROMPER TODO, NAH CHISTE, SOLO EJECUTAR CUANDO QUIERAN CAMBIAR EL CAMPO NUMERACION DE TODAS LAS GALERIAS
@@ -270,11 +285,19 @@ $app->get("/guia/{id:[0-9]+}", function (Request $request, Response $response, a
     $xSQL .= " INNER JOIN tiposcategorias ON valortipcat.idtipcat = tiposcategorias.id";
     $xSQL .= " INNER JOIN usuarios ON guias.iduser = usuarios.id";
     $xSQL .= " WHERE guias.id = " . $args["id"];
-    $respuesta = dbGet($xSQL);
+    $guia = dbGet($xSQL);
+
+        //Fotos (galeria)
+        $xSQL = "SELECT imagen FROM galeria";
+        $xSQL .= " WHERE  idgaleria = " . $guia->data["registros"][0]->id;
+        $fotos = dbGet($xSQL);
+        $guia->data["registros"][0]->fotos = $fotos->data["registros"];
+    
+
     return $response
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        ->write(json_encode($guia, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
 //Obtener los Servicios de una Guía en particular
