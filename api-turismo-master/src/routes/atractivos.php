@@ -103,24 +103,47 @@ $app->get("/gastronomia/{tipo}", function (Request $request, Response $response,
 });*/
 //------------------------
 
-/*
 $app->get("/gastronomia/adhiereDosep", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT DISTINCT gastronomia.id, gastronomia.idlocalidad, gastronomia.tipo, gastronomia.nombre, gastronomia.telefono, ciudades.caracteristica, gastronomia_imgs.imagen, ciudades.nombre AS ciudad FROM gastronomia";
+    $xSQL = "SELECT gastronomia.id, gastronomia.idlocalidad, gastronomia.tipo, gastronomia.nombre, gastronomia.telefono, ciudades.caracteristica, gastronomia_imgs.imagen, ciudades.nombre AS ciudad FROM gastronomia";
     $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN gastronomia_imgs ON gastronomia.id = gastronomia_imgs.idgastronomia";
-    $xSQL .= " WHERE gastronomia.adhiereDosep > 0";
-    $xSQL .= " GROUP BY gastronomia.id";
-    $xSQL .= " ORDER BY gastronomia.nombre";
+    $xSQL .= " WHERE gastronomia.adhiereDosep > 0 AND gastronomia_imgs.numeracion = 1";
+    $xSQL .= " ORDER BY ciudades.nombre";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-*/
 
+$app->get("/gastronomia/galeriaupdate", function (Request $request, Response $response, array $args) {
+
+    $db = new DB();
+    $db->connect();
+
+    $xSQL = "SELECT idgastronomia FROM gastronomia_imgs";
+   $xSQL .= " GROUP BY idgastronomia";
+   $xSQL .= " ORDER BY idgastronomia";
+
+   $idsgaleria = dbGet($xSQL);
+
+   for ($i = 0; $i < count($idsgaleria->data["registros"]); $i++) {
+        $xSQL = "SELECT id FROM gastronomia_imgs";
+        $xSQL .= " WHERE idgastronomia = ". $idsgaleria->data["registros"][$i]->idgastronomia; 
+        $itemsgaleria = dbGet($xSQL);
+        for ($x = 1; $x < (count($itemsgaleria->data["registros"])+1); $x++) {
+            $xSQL = "UPDATE gastronomia_imgs SET numeracion = ".$x. " WHERE id = ". $itemsgaleria->data["registros"][$x-1]->id;
+            $db->consultar($xSQL);
+        }
+    }
+    $db->close();
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($idsgaleria, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+/*
 //---- Datos de una gastronomia + AdhiereDOSEP + imagenes ---/
-
 $app->get("/gastronomia/adhiereDosep", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM gastronomia WHERE gastronomia.adhiereDosep > 0";
     $respuesta = dbGet($xSQL);
@@ -142,7 +165,7 @@ $app->get("/gastronomia/adhiereDosep", function (Request $request, Response $res
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-
+*/
 //Datos de un gastronomia Particular
 $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response $response, array $args) {
     //Ciudades de la Zona
