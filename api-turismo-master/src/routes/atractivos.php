@@ -36,6 +36,17 @@ $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $resp
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+
+
+$app->get("/gastronomiaNoFotos/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM gastronomia WHERE id = " . $args["id"];
+    $respuesta = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
 //---- Datos de gastronomias según localidad ---
 /*
 $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
@@ -723,7 +734,7 @@ $app->post("/gastronomia/new/{id:[0-9]+}", function (Request $request, Response 
         ),
         "adhiereDosep" => array(
             "tag" => "Adhiere Dosep"
-        )
+        ),
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
@@ -936,7 +947,10 @@ $app->patch("/atractivo/{id:[0-9]+}", function (Request $request, Response $resp
         ),
         "imperdible" => array(
             "tag" => "Imperdible"
-        )
+        ),        
+        "adhiereDosep" => array(
+            "tag" => "Adhiere Dosep"
+        ),
     );
     $validar = new Validate();
     $parsedBody = $request->getParsedBody();
@@ -960,7 +974,7 @@ $app->patch("/atractivo/{id:[0-9]+}", function (Request $request, Response $resp
 });
 
 
-//Actualizar los datos de un atractivo
+//Actualizar los datos de un gastronomico
 $app->patch("/gastronomia/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "id" => array(
@@ -1048,6 +1062,9 @@ $app->patch("/gastronomia/{id:[0-9]+}", function (Request $request, Response $re
         "domingo" => array(
             "max" => 100,
             "tag" => "Horario Domingo"
+        ),        
+        "adhiereDosep" => array(
+            "tag" => "adhiereDosep"
         ),
         "imperdible" => array(
             "tag" => "Imperdible"
@@ -1057,7 +1074,7 @@ $app->patch("/gastronomia/{id:[0-9]+}", function (Request $request, Response $re
     $parsedBody = $request->getParsedBody();
     if ($validar->validar($parsedBody, $reglas)) {
         //$respuesta = dbPatchWithData("atractivos", $args["id"], $parsedBody);
-        $respuesta = dbPatchWithData("gastronomia", $parsedBody["id"], $parsedBody);
+        $respuesta = dbPatchWithData("gastronomia", $args["id"], $parsedBody);
         return $response
             ->withStatus(200) //Ok
             ->withHeader("Content-Type", "application/json")
