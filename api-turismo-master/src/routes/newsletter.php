@@ -114,24 +114,13 @@
    //[GET]
     //Todas los Newsletters
     $app->get("/exportmails", function (Request $request, Response $response, array $args) {
-        $xSQL = "SELECT * FROM newsletter WHERE activo = 1";
+        $xSQL = "SELECT email FROM newsletter WHERE activo = 1";
+        $xSQL .= " ORDER BY email";
         $respuesta = dbGet($xSQL);
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        $x = 2;
-        $sheet->setCellValue('A1', "Mails para el newsletter");
-        $sheet->getStyle('A1')->getFont()->setBold(true);
-        foreach($respuesta->data["registros"] as $res) {       
-            $sheet->setCellValue('A'.$x, $res->email.'');
-            $sheet->getColumnDimension('A')->setWidth(30);
-            $x++;
-        }
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="mailsNewsletter.xlsx"');
-
-        $writer = new Xlsx($spreadsheet);         
-        $writer->save('php://output');    
+        return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
     });  
     

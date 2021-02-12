@@ -22,7 +22,9 @@ $app->get("/atractivo/{id:[0-9]+}", function (Request $request, Response $respon
 });
 //Datos de un gastronomia Particular
 $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM gastronomia WHERE id = " . $args["id"];
+    $xSQL = "SELECT nombre, ciudades.nombre AS ciudad FROM gastronomia" ;
+    $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
+    $xSQL .= "WHERE gastronomia.id = " . $args["id"];
     $respuesta = dbGet($xSQL);
     //Color?
     $xSQL = "SELECT imagen FROM gastronomia_imgs";
@@ -209,11 +211,10 @@ $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response 
 
 $app->get("/gastronomia/full", function (Request $request, Response $response, array $args) {
     //Ciudades de la Zona
-    $xSQL = "SELECT zonas_ciudades.idciudad, ciudades.nombre AS ciudad, gastronomia.*, gastronomia_imgs.imagen FROM zonas_ciudades";
-    $xSQL .= " INNER JOIN ciudades ON zonas_ciudades.idciudad = ciudades.id";
-    $xSQL .= " INNER JOIN gastronomia ON gastronomia.idlocalidad = ciudades.id";
+    $xSQL = "SELECT gastronomia.id, ciudades.nombre AS ciudad, gastronomia.nombre, gastronomia_imgs.imagen FROM gastronomia";
+    $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN gastronomia_imgs ON gastronomia_imgs.idgastronomia = gastronomia.id";
-    $xSQL .= " WHERE zonas_ciudades.idzona = '4' OR  zonas_ciudades.idzona = '5' OR  zonas_ciudades.idzona = '8' OR  zonas_ciudades.idzona = '1' OR  zonas_ciudades.idzona = '9'";
+    $xSQL .= " WHERE gastronomia_imgs.numeracion = 1";
     $xSQL .= " ORDER BY ciudades.nombre";
     $ciudades_zona = dbGet($xSQL);
 
