@@ -143,6 +143,44 @@ $app->get("/ciudades", function (Request $request, Response $response, array $ar
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/ciudadesfull", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT id,nombre,descripcion FROM ciudades";
+    $xSQL .= " ORDER BY ciudades.nombre";
+    $respuesta = dbGet($xSQL);
+
+    //Obtener imágenes al azar de los Atractivos
+    
+    for ($c = 0; $c < count($respuesta->data["registros"]); $c++) {
+    $xSQL = "SELECT id, nombre from atractivos WHERE idlocalidad = " .$respuesta->data["registros"][$c]->id;
+    $atractivos = dbGet($xSQL);
+    $buffer_imagenes = null;
+    if (count($atractivos->data["registros"]) > 0) {
+          
+            //Selecciono una imagen de ese atractivo al azar
+            $xSQL = "SELECT imagen FROM atractivo_imgs WHERE idatractivo = " . $atractivos->data["registros"][0]->id;
+            $imagenes = dbGet($xSQL);
+            if (count($imagenes->data["registros"]) > 0) {
+                $buffer_imagenes =  $imagenes->data["registros"][0]->imagen;
+            } else { //El Atractivo no tiene fotos
+                $buffer_imagenes =  "default.jpg";
+            }
+           
+        
+    } else {
+        //No tiene atractivos la Localidad
+        $buffer_imagenes =  "default.jpg";
+    }
+    $respuesta->data["registros"][$c]->foto = $buffer_imagenes;
+}
+   
+
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Una Ciudad en particular
 $app->get("/ciudad/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT ciudades.*, departamentos.nombre as departamento FROM ciudades";
