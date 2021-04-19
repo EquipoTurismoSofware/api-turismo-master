@@ -166,6 +166,8 @@
     require "../src/routes/oficinas.php";
     //Aeropuertos
     require "../src/routes/aeropuertos.php";
+    //Estadisticas
+    require "../src/routes/estadisticas.php";
     //Casas de cambios
     require "../src/routes/casasdecambio.php";
     //Alquileres de autos

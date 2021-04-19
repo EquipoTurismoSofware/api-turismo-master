@@ -22,9 +22,9 @@ $app->get("/atractivo/{id:[0-9]+}", function (Request $request, Response $respon
 });
 //Datos de un gastronomia Particular
 $app->get("/gastronomia/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT nombre, ciudades.nombre AS ciudad FROM gastronomia" ;
+    $xSQL = "SELECT gastronomia.*, ciudades.nombre AS ciudad FROM gastronomia";
     $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
-    $xSQL .= "WHERE gastronomia.id = " . $args["id"];
+    $xSQL .= " WHERE gastronomia.id = " .$args["id"];
     $respuesta = dbGet($xSQL);
     //Color?
     $xSQL = "SELECT imagen FROM gastronomia_imgs";
@@ -209,12 +209,27 @@ $app->get("/gastronomia/{id:[0-9]+}/zona", function (Request $request, Response 
         ->write(json_encode($respuestaFinal, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->get("/gastronomia/app/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT gastronomia.id, ciudades.nombre AS ciudad, gastronomia.nombre, gastronomia_imgs.imagen FROM gastronomia";
+    $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
+    $xSQL .= " INNER JOIN gastronomia_imgs ON gastronomia_imgs.idgastronomia = gastronomia.id";
+    $xSQL .= " WHERE gastronomia_imgs.numeracion = 1 AND gastronomia.id = ". $args['id'];
+    $xSQL .= " ORDER BY ciudades.nombre";
+    $ciudades_zona = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($ciudades_zona, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+ });
+
+
 $app->get("/gastronomia/full", function (Request $request, Response $response, array $args) {
     //Ciudades de la Zona
     $xSQL = "SELECT gastronomia.id, ciudades.nombre AS ciudad, gastronomia.nombre, gastronomia_imgs.imagen FROM gastronomia";
     $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN gastronomia_imgs ON gastronomia_imgs.idgastronomia = gastronomia.id";
-    $xSQL .= " WHERE gastronomia_imgs.numeracion = 1";
+    $xSQL .= " WHERE gastronomia_imgs.numeracion = 1 ";
     $xSQL .= " ORDER BY ciudades.nombre";
     $ciudades_zona = dbGet($xSQL);
 
@@ -233,6 +248,25 @@ $app->get("/gastronomia/full", function (Request $request, Response $response, a
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($ciudades_zona, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
+
+$app->get("/cerveceria/app/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT  ciudades.nombre AS ciudad, gastronomia.* FROM gastronomia";
+    $xSQL .= " INNER JOIN ciudades ON gastronomia.idlocalidad = ciudades.id";
+    $xSQL .=" WHERE (gastronomia.tipo = 'Camino de la Cerveza Artesanal de Sierras Centrales' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Los Comechingones' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Norte Puntano' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Conlara' OR gastronomia.tipo = 'Camino de la Cerveza Artesanal de Circuito del Morro') AND gastronomia.id = ". $args['id'];
+    $gastronomia = dbGet($xSQL);
+
+    for ($i = 0; $i < count($gastronomia->data["registros"]); $i++) {
+        $xSQL = "SELECT imagen FROM gastronomia_imgs";
+        $xSQL .= " WHERE idgastronomia = " . $gastronomia->data["registros"][$i]->id;
+        $fotos = dbGet($xSQL);
+        $gastronomia->data["registros"][$i]->fotos = $fotos->data["registros"];
+    }
+
+    return $response
+         ->withStatus(200)
+         ->withHeader("Content-Type", "application/json")
+         ->write(json_encode($gastronomia, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+ });
 
 $app->get("/ceveceriafull", function (Request $request, Response $response, array $args) {
 

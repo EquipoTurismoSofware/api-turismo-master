@@ -200,6 +200,23 @@ $app->get("/guia/{id:[0-9]+}", function (Request $request, Response $response, a
         ->write(json_encode($guia, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//Obtener una Guia en particular para celular
+$app->get("/guia/app/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+   $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, ciudades.nombre AS ciudad,galeria.imagen FROM guias";
+   $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
+   $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
+   $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
+   $xSQL .= " WHERE galeria.numeracion = 1 AND guias.id = ". $args["id"];
+   $xSQL .= " ORDER BY ciudades.nombre";
+
+   $guia = dbGet($xSQL);
+   
+   return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($guia, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Obtener los Servicios de una Guía en particular
 $app->get("/guia/{id:[0-9]+}/servicios", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT guiaservicios.*, servicios.descripcion FROM guiaservicios";
