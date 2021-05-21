@@ -33,7 +33,7 @@
     //Todas los Ciudades de una determinada Zona
     $app->get("/zona/{idzona:[0-9]+}/ciudades", function (Request $request, Response $response, array $args) {
         //Ciudades de la Zona
-        $xSQL = "SELECT zonas_ciudades.id, zonas_ciudades.idciudad, ciudades.nombre as ciudad, departamentos.nombre as departamento FROM zonas_ciudades";
+        $xSQL = "SELECT zonas_ciudades.id, zonas_ciudades.idciudad, ciudades.nombre as ciudad, ciudades.descripcion as descripcion, departamentos.nombre as departamento, ciudades.latitud, ciudades.longitud FROM zonas_ciudades";
         $xSQL .= " INNER JOIN ciudades ON zonas_ciudades.idciudad = ciudades.id";
         $xSQL .= " INNER JOIN departamentos ON ciudades.iddepartamento = departamentos.id";
         $xSQL .= " WHERE zonas_ciudades.idzona = " . $args["idzona"];
@@ -44,8 +44,6 @@
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     });
-
-    
 
     //Para armar el carousel de una zona y la galería de imágenes con link a cada localidad
     $app->get("/zona/{idzona:[0-9]+}/galeria", function (Request $request, Response $response, array $args) {
