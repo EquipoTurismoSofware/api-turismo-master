@@ -13,6 +13,39 @@ $app->get("/reporte/ultimo", function (Request $request, Response $response, arr
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
+
+$app->get("/reporte/all", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM reporte ORDER BY id DESC";
+    $respuesta = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+//Graficos de un reporte enviado por parametro
+$app->get("/graficos/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT grafico.id, reporte.nombre AS titulo, reporte.fechaDesde, reporte.fechaHasta, tipo_grafico.nombre AS tipoNombre, tipo_grafico.tipo AS tipoGrafico FROM grafico";
+    $xSQL .= " INNER JOIN reporte ON grafico.idReporte = reporte.id";
+    $xSQL .= " INNER JOIN tipo_grafico ON grafico.idtipo = tipo_grafico.id";
+    $xSQL .= " WHERE grafico.idReporte = " .$args["id"];
+    $respuesta = dbGet($xSQL);
+
+    for ($i = 0; $i <  $respuesta->data["count"]; $i++) {
+        $xSQL = "SELECT etiqueta, valor FROM valor_grafico";
+        $xSQL .= " WHERE idGrafico = " .$respuesta->data["registros"][$i]->id;
+        $valores = dbGet($xSQL);
+
+        $respuesta->data["registros"][$i]->valores = $valores->data["registros"];
+    }
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Graficos de un reporte en particular
 $app->get("/graficos", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT id FROM reporte ORDER BY id DESC LIMIT 1";
@@ -40,7 +73,7 @@ $app->get("/graficos", function (Request $request, Response $response, array $ar
 
 //Me trae todos los graficos
 $app->get("/grafico/all", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT id FROM reporte ORDER BY id DESC LIMIT 1";
+    $xSQL = "SELECT id FROM reporte ORDER BY id DESC";
     $respuesta1 = dbGet($xSQL);
 
     $xSQL = "SELECT grafico.id, tipo_grafico.tipo AS tipoGrafico FROM grafico";
@@ -58,6 +91,16 @@ $app->get("/grafico/all", function (Request $request, Response $response, array 
 //Me trae todos los tipos de graficos
 $app->get("/tiposgraficos/all", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM tipo_grafico";
+    $respuesta = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+$app->get("/tiposgraficos/soloTipo", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT tipo FROM tipo_grafico";
     $respuesta = dbGet($xSQL);
 
     return $response
@@ -90,6 +133,17 @@ $app->post("/addvalores", function (Request $request, Response $response, array 
 $app->post("/grafico/addNew", function (Request $request, Response $response, array $args) {
     $parsedBody = $request->getParsedBody();
     $respuesta = dbPostWithData("grafico", $parsedBody);
+
+    return $response
+        ->withStatus(201) //Created
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    
+});
+
+$app->post("/tipografico/addNew", function (Request $request, Response $response, array $args) {
+    $parsedBody = $request->getParsedBody();
+    $respuesta = dbPostWithData("tipo_grafico", $parsedBody);
 
     return $response
         ->withStatus(201) //Created
