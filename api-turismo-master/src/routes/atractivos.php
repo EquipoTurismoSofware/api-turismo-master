@@ -321,9 +321,10 @@ $app->get("/atractivos/all", function (Request $request, Response $response, arr
 
 //Trae atractivos solo de ciertos tipos
 $app->get("/atractivos/algunosTipos", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT atractivos.id, atractivos.idlocalidad, atractivos.tipo, atractivos.nombre, atractivos.descripcion, atractivos.latitud, atractivos.longitud, ciudades.nombre AS ciudad FROM atractivos";
+    $xSQL = "SELECT atractivos.id, atractivos.idlocalidad, clasificacion.nombre AS tipoAtractivo, atractivos.nombre, atractivos.descripcion, atractivos.latitud, atractivos.longitud, ciudades.nombre AS ciudad FROM atractivos";
     $xSQL .= " INNER JOIN ciudades ON atractivos.idlocalidad = ciudades.id";
-    $xSQL .= " WHERE atractivos.tipo = 'Diques' OR atractivos.tipo = 'Dique' OR atractivos.tipo = 'Rios y saltos de agua' OR  atractivos.tipo = 'Lagunas' OR  atractivos.tipo = 'Laguna' OR atractivos.tipo = 'Parques' OR  atractivos.tipo = 'Parque' OR atractivos.tipo = 'Balneario' OR atractivos.tipo = 'Museos' OR atractivos.tipo = 'Museo' OR atractivos.tipo = 'Cerros' OR atractivos.tipo = 'Cerro' OR atractivos.tipo = 'Caminos Pintorescos'";
+    $xSQL .= " INNER JOIN clasificacion ON atractivos.idTipo = clasificacion.id";
+    $xSQL .= " WHERE clasificacion.nombre = 'Diques' OR clasificacion.nombre = 'Ríos y saltos de agua' OR clasificacion.nombre = 'Lagunas' OR clasificacion.nombre = 'Parques' OR clasificacion.nombre = 'Balnearios' OR clasificacion.nombre = 'Museos' OR clasificacion.nombre = 'Cerros' OR clasificacion.nombre = 'Caminos Pintorescos'";
     $xSQL .= " ORDER BY atractivos.nombre";
     $respuesta = dbGet($xSQL);
 
@@ -388,18 +389,45 @@ $app->get("/gastronomia", function (Request $request, Response $response, array 
 
 
 //DATOS DE UN TIPO EN ESPECIAL 
-/*$app->get("/atractivo/{tipo}", function (Request $request, Response $response, array $args) {
-        $xSQL = "SELECT * FROM atractivos WHERE tipo = " . $args["tipo"];
-        $xSQL .= " INNER JOIN atractivo_imgs ON atractivos.id = atractivo_imgs.idatractivo";
-        $xSQL .= " WHERE atractivos.id = atractivo_imgs.idatractivo";
-        $respuesta = dbGet($xSQL);
-        Color?
-        return $response
-            ->withStatus(200)
-            ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-    });
-*/
+$app->get("/atractivoTipo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT atractivos.*, ciudades.nombre AS localidad FROM atractivos";
+    $xSQL .= " INNER JOIN ciudades ON atractivos.idlocalidad = ciudades.id";
+    $xSQL .= " WHERE atractivos.idTipo = " . $args['id'];
+    $xSQL .= " ORDER BY atractivos.nombre";
+    $respuesta = dbGet($xSQL);
+
+    $color = "722789"; //Violeta Oscuro
+    //Para obtener el color (saber si la localidad es parte de alguna zona)
+    if ($respuesta->data["count"] > 0) {
+        for ($i = 0; $i <  $respuesta->data["count"]; $i++) {
+            $xSQL = "SELECT color from zonas";
+            $xSQL .= " INNER JOIN zonas_ciudades ON zonas.id = zonas_ciudades.idzona";
+            $xSQL .= " WHERE zonas_ciudades.idciudad = " . $respuesta->data["registros"][$i]->idlocalidad;
+            $color = dbGet($xSQL);
+            if ($color->data["count"] > 0) {
+                $respuesta->data["registros"][$i]->color = $color->data["registros"][0]->color;
+            } else { //No pertenece a una zona
+                $respuesta->data["registros"][$i]->color = "722789";
+            }
+        }
+    }
+
+    //Imagenes del Atractivo
+    for ($i = 0; $i < count($respuesta->data["registros"]); $i++) {
+        $respuesta->data["registros"][$i]->color = $color; //Set de color
+        $xSQL = "SELECT imagen FROM atractivo_imgs WHERE idatractivo = " . $respuesta->data["registros"][$i]->id;
+        $imagenes = dbGet($xSQL);
+        if ($imagenes->data["count"] > 0) {
+            $respuesta->data["registros"][$i]->imagenes = $imagenes->data["registros"];
+        } else {
+            $respuesta->data["registros"][$i]->imagenes = [array("imagen" => "default.jpg")];
+        }
+    }
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
 
 $app->get("/atractivo/{tipo}", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT atractivos.*, ciudades.nombre AS localidad FROM atractivos";
@@ -481,7 +509,6 @@ $app->get("/gastronomia/{tipo}", function (Request $request, Response $response,
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-
 
 //Todos los Imperdibles del producto CREER 
 $app->get("/atractivo/creer/{numero}", function (Request $request, Response $response, array $args) {
