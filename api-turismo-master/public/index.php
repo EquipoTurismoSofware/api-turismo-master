@@ -144,6 +144,7 @@
     require "../src/routes/ciudades.php";
      //Ciudades
      require "../src/routes/guiasdeturismo.php";
+     require "../src/routes/censista.php";
     //Tipos de Alojamiento
     require "../src/routes/tipos.php";
     //Guias
