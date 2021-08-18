@@ -319,6 +319,49 @@ $app->get("/atractivos/all", function (Request $request, Response $response, arr
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//Trae atractivos de caminos pintorescos 
+$app->get("/atractivos/campintur", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT atractivos.id, atractivos.idlocalidad, clasificacion.nombre AS tipoAtractivo, atractivos.nombre, atractivos.descripcion, atractivos.latitud, atractivos.longitud, ciudades.nombre AS ciudad FROM atractivos";
+    $xSQL .= " INNER JOIN ciudades ON atractivos.idlocalidad = ciudades.id";
+    $xSQL .= " INNER JOIN clasificacion ON atractivos.idTipo = clasificacion.id";
+    $xSQL .= " WHERE clasificacion.nombre Like '%Caminos Pintorescos%'";
+    $xSQL .= " ORDER BY atractivos.nombre";
+    $respuesta = dbGet($xSQL);
+
+    $color = "722789"; //Violeta Oscuro
+    //Para obtener el color (saber si la localidad es parte de alguna zona)
+    if ($respuesta->data["count"] > 0) {
+        for ($i = 0; $i <  $respuesta->data["count"]; $i++) {
+            $xSQL = "SELECT color from zonas";
+            $xSQL .= " INNER JOIN zonas_ciudades ON zonas.id = zonas_ciudades.idzona";
+            $xSQL .= " WHERE zonas_ciudades.idciudad = " . $respuesta->data["registros"][$i]->idlocalidad;
+            $color = dbGet($xSQL);
+            if ($color->data["count"] > 0) {
+                $respuesta->data["registros"][$i]->color = $color->data["registros"][0]->color;
+            } else { //No pertenece a una zona
+                $respuesta->data["registros"][$i]->color = "722789";
+            }
+        }
+    }
+
+    //Imagenes del Atractivo
+    for ($i = 0; $i < count($respuesta->data["registros"]); $i++) {
+        $respuesta->data["registros"][$i]->color = $color; //Set de color
+        $xSQL = "SELECT imagen FROM atractivo_imgs WHERE idatractivo = " . $respuesta->data["registros"][$i]->id;
+        $imagenes = dbGet($xSQL);
+        if ($imagenes->data["count"] > 0) {
+            $respuesta->data["registros"][$i]->imagenes = $imagenes->data["registros"];
+        } else {
+            $respuesta->data["registros"][$i]->imagenes = [array("imagen" => "default.jpg")];
+        }
+    }
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+
 //Trae atractivos solo de ciertos tipos
 $app->get("/atractivos/algunosTipos", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT atractivos.id, atractivos.idlocalidad, clasificacion.nombre AS tipoAtractivo, atractivos.nombre, atractivos.descripcion, atractivos.latitud, atractivos.longitud, ciudades.nombre AS ciudad FROM atractivos";
