@@ -367,7 +367,7 @@ $app->get("/atractivos/algunosTipos", function (Request $request, Response $resp
     $xSQL = "SELECT atractivos.id, atractivos.idlocalidad, clasificacion.nombre AS tipoAtractivo, atractivos.nombre, atractivos.descripcion, atractivos.latitud, atractivos.longitud, ciudades.nombre AS ciudad FROM atractivos";
     $xSQL .= " INNER JOIN ciudades ON atractivos.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN clasificacion ON atractivos.idTipo = clasificacion.id";
-    $xSQL .= " WHERE clasificacion.nombre = 'Diques' OR clasificacion.nombre = 'Ríos y saltos de agua' OR clasificacion.nombre = 'Lagunas' OR clasificacion.nombre = 'Parques' OR clasificacion.nombre = 'Balnearios' OR clasificacion.nombre = 'Museos' OR clasificacion.nombre = 'Cerros' OR clasificacion.nombre = 'Caminos Pintorescos'";
+    //$xSQL .= " WHERE clasificacion.nombre = 'Diques' OR clasificacion.nombre = 'Ríos y saltos de agua' OR clasificacion.nombre = 'Lagunas' OR clasificacion.nombre = 'Parques' OR clasificacion.nombre = 'Balnearios' OR clasificacion.nombre = 'Museos' OR clasificacion.nombre = 'Cerros' OR clasificacion.nombre = 'Caminos Pintorescos'";
     $xSQL .= " ORDER BY atractivos.nombre";
     $respuesta = dbGet($xSQL);
 
@@ -430,11 +430,21 @@ $app->get("/gastronomia", function (Request $request, Response $response, array 
 });
 //----------------
 
+$app->get("/clasificacion/all", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM clasificacion";
+    $respuesta = dbGet($xSQL);
+
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
 
 //DATOS DE UN TIPO EN ESPECIAL 
 $app->get("/atractivoTipo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT atractivos.*, ciudades.nombre AS localidad FROM atractivos";
+    $xSQL = "SELECT atractivos.*, ciudades.nombre AS localidad, clasificacion.nombre AS tipoNombre FROM atractivos";
     $xSQL .= " INNER JOIN ciudades ON atractivos.idlocalidad = ciudades.id";
+    $xSQL .= " INNER JOIN clasificacion ON atractivos.idTipo = clasificacion.id";
     $xSQL .= " WHERE atractivos.idTipo = " . $args['id'];
     $xSQL .= " ORDER BY atractivos.nombre";
     $respuesta = dbGet($xSQL);
@@ -709,6 +719,10 @@ $app->post("/atractivo/new/{id:[0-9]+}", function (Request $request, Response $r
             "mayorcero" => true,
             "numeric" => true,
             "tag" => "Identificador de Localidad"
+        ),
+        "idTipo" => array(
+            "numeric" => true,
+            "tag" => "idTipo"
         ),
         "tipo" => array(
             "max" => 150,
@@ -1038,6 +1052,10 @@ $app->patch("/atractivo/{id:[0-9]+}", function (Request $request, Response $resp
             "numeric" => true,
             "tag" => "Identificador de Localidad"
         ),
+        "idTipo" => array(
+            "max" => 150,
+            "tag" => "Id Tipo de Atractivo"
+        ),
         "tipo" => array(
             "max" => 150,
             "tag" => "Tipo de Atractivo"
@@ -1116,9 +1134,6 @@ $app->patch("/atractivo/{id:[0-9]+}", function (Request $request, Response $resp
         ),
         "imperdible" => array(
             "tag" => "Imperdible"
-        ),        
-        "adhiereDosep" => array(
-            "tag" => "Adhiere Dosep"
         ),
     );
     $validar = new Validate();
