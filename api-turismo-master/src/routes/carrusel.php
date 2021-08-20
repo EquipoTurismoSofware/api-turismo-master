@@ -22,6 +22,28 @@ $app->get("/carrusel/{id:[0-9]+}", function (Request $request, Response $respons
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
+
+// filtra galerias por temporada 
+
+$app->get("/carrusel/galeria/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM carrusel_home WHERE idGHome = " . $args["id"];
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
+// trae todas las galerias 
+$app->get("/galeriaHome", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM galeria_home ";
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Agregar una imagen
 $app->post("/addimgcarrusel", function (Request $request, Response $response, array $args) {
     $reglas = array(
@@ -30,7 +52,7 @@ $app->post("/addimgcarrusel", function (Request $request, Response $response, ar
             "mayorcero" => 0,
             "tag" => "activo"
         ),
-        "idGaleria" => array(
+        "idGHome" => array(
             "numeric" => true,
             "mayorcero" => 0,
             "tag" => "Identificador de galeria"
@@ -86,7 +108,7 @@ $app->post("/upimgcarrusel/{id:[0-9]+}", function (Request $request, Response $r
             "mayorcero" => 0,
             "tag" => "activo"
         ),
-        "idGaleria" => array(
+        "idGHome" => array(
             "numeric" => true,
             "mayorcero" => 0,
             "tag" => "Identificador de galeria"
