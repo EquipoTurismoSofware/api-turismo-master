@@ -48,8 +48,6 @@ $app->get("/galeriaHome", function (Request $request, Response $response, array 
 $app->post("/addimgcarrusel", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "activo" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "activo"
         ),
         "idGHome" => array(
@@ -58,13 +56,9 @@ $app->post("/addimgcarrusel", function (Request $request, Response $response, ar
             "tag" => "Identificador de galeria"
         ),
         "horizontal" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "horizontal"
         ),
         "vertical" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "vertical"
         ),
     );
@@ -77,26 +71,32 @@ $app->post("/addimgcarrusel", function (Request $request, Response $response, ar
         $formatos_permitidos = $this->get("allow_file_format");
         $uploadedFiles = $request->getUploadedFiles();
         //img-uno
-        $img_uno = "default.jpg";
+        $img_uno = $parsedBody["image"];
         if (isset($uploadedFiles["img_uno"])) {
-            // handle single input with single file upload
             $uploadedFile = $uploadedFiles["img_uno"];
             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
                 if ($uploadedFile->getSize() <= $tamanio_maximo) {
                     if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
                         $img_uno = moveUploadedFile($directory, $uploadedFile, 0, 0);
+                        if ($img_uno == true) {
+                            $eliminar = $parsedBody["image"];
+                            if ($eliminar != "default.jpg") {
+                                @unlink($this->get("upload_directory_carrusel") . "\\$eliminar");
+                            }
+                        }
                     }
                 }
             }
         }
         $parsedBody["image"] = $img_uno;
         $respuesta = dbPostWithData("carrusel_home", $parsedBody);
-        $respuesta->foto_uno = $img_uno;
+        $respuesta->image = $img_uno;
         return $response
             ->withStatus(201) //Created
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
+    
 });
 
 /** Actualiza**/
@@ -104,8 +104,6 @@ $app->post("/addimgcarrusel", function (Request $request, Response $response, ar
 $app->post("/upimgcarrusel/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "activo" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "activo"
         ),
         "idGHome" => array(
@@ -114,18 +112,12 @@ $app->post("/upimgcarrusel/{id:[0-9]+}", function (Request $request, Response $r
             "tag" => "Identificador de galeria"
         ),
         "horizontal" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "horizontal"
         ),
         "vertical" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "vertical"
         ),
         "image" => array(
-            "numeric" => true,
-            "mayorcero" => 0,
             "tag" => "imagen"
         )
     );
