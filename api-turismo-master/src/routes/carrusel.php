@@ -71,23 +71,18 @@ $app->post("/addimgcarrusel", function (Request $request, Response $response, ar
         $formatos_permitidos = $this->get("allow_file_format");
         $uploadedFiles = $request->getUploadedFiles();
         //img-uno
-        $img_uno = $parsedBody["image"];
-        if (isset($uploadedFiles["img_uno"])) {
-            $uploadedFile = $uploadedFiles["img_uno"];
+        $img_uno = "default.jpg";
+        if (isset($uploadedFiles["img-uno"])) {
+            $uploadedFile = $uploadedFiles["img-uno"];
             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
                 if ($uploadedFile->getSize() <= $tamanio_maximo) {
                     if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
                         $img_uno = moveUploadedFile($directory, $uploadedFile, 0, 0);
-                        if ($img_uno == true) {
-                            $eliminar = $parsedBody["image"];
-                            if ($eliminar != "default.jpg") {
-                                @unlink($this->get("upload_directory_carrusel") . "\\$eliminar");
-                            }
-                        }
                     }
                 }
             }
         }
+
         $parsedBody["image"] = $img_uno;
         $respuesta = dbPostWithData("carrusel_home", $parsedBody);
         $respuesta->image = $img_uno;
@@ -156,9 +151,9 @@ $app->post("/upimgcarrusel/{id:[0-9]+}", function (Request $request, Response $r
 
 $app->delete("/delimagen/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $archivo = dbGet("SELECT image FROM carrusel_home WHERE id = " . $args["id"]);
-    if ($archivo->err == false && $archivo->data["count"] > 0) {
-        $fileX = $archivo->data["registros"][0]->imagen;
-        @unlink($this->get("upload_directory") . "\\$fileX");
+    if ($archivo->err == false && $archivo->data["count"] > 0 && $archivo->data["registros"][0]->image != "default.jpg") {
+        $fileX = $archivo->data["registros"][0]->image;
+        @unlink($this->get("upload_directory_carrusel") . "\\$fileX");
     }
     $respuesta = dbDelete("carrusel_home", $args["id"]);
     return $response
