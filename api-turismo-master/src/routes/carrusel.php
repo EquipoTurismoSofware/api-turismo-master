@@ -119,10 +119,27 @@ $app->post("/upimgcarrusel/{id:[0-9]+}", function (Request $request, Response $r
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
-        //Imágenes
-        //Eliminar de $parsedBody id
+        $directory = $this->get("upload_directory_carrusel");
+        $tamanio_maximo = $this->get("max_file_size");
+        $formatos_permitidos = $this->get("allow_file_format");
+        $uploadedFiles = $request->getUploadedFiles();
+        //img-uno
+        $img_uno = "default.jpg";
+        if (isset($uploadedFiles["img-uno"])) {
+            $uploadedFile = $uploadedFiles["img-uno"];
+            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                    if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                        $img_uno = moveUploadedFile($directory, $uploadedFile, 0, 0);
+                    }
+                }
+            }
+        }
+
+        $parsedBody["image"] = $img_uno;
         unset($parsedBody["id"]);
         $respuesta = dbPatchWithData("carrusel_home", $args["id"], $parsedBody);
+        $respuesta->image = $img_uno;
         if ($respuesta->err) {
             return $response
                 ->withStatus(409) //Conflicto
