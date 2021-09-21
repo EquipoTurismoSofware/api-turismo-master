@@ -59,14 +59,14 @@ $app->post("/usuarios/update/{id}", function (Request $request, Response $respon
         }
     });
 
-    $app->post("/usuarios/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $app->patch("/usuarios/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     
         $parsedBody = $request->getParsedBody();
             $data = array(
                 "id_User" =>$parsedBody["id_User"],
-                // "nombreUser" =>$parsedBody["nombreUser"],
-                // "apellidoUser" =>$parsedBody["apellidoUser"],
-                // "emailUser" =>$parsedBody["emailUser"],
+                "nombreUser" =>$parsedBody["nombreUser"],
+                "apellidoUser" =>$parsedBody["apellidoUser"],
+                "emailUser" =>$parsedBody["emailUser"],
             );
             $respuesta = dbPatchWithData("usuarios_app", $args["id"], $data);     
             return $response
