@@ -87,6 +87,7 @@
             $xSQL = "UPDATE " . $table . " SET " . $values . " WHERE id = " . $id;
             if($db->consultar($xSQL)->error()) {
                 $respuesta->err = true;
+                $respuesta->sql= $xSQL;
                 $respuesta->errMsg = $db->error_msg();
             }
         } else {
