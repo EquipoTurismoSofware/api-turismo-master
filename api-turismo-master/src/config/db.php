@@ -57,6 +57,27 @@
             return $this;
         }
 
+        public function consultar2($sql) {
+            $this->err = false;
+            $this->err_msg = "";
+            $this->results = null;
+            $this->num_registros = 0;
+            $this->lastId = 0;
+            if(!$this->err_conn) {
+                try {
+                    $this->results = $this->conn->prepare($sql);
+                    $this->results->execute();
+                    $inicio_sql = strtoupper(substr($sql, 0, 6)); //DELETE INSERT SELECT
+                    $this->num_registros = $this->results->rowCount();
+                    
+                } catch(PDOExeption $e) {
+                    $this->err = true;
+                    $this->err_msg = $e->getMessage();
+                }
+            }
+            return $this->results;
+        }
+
         public function get_rows($opt = PDO::FETCH_OBJ) {
             if(!$this->err) {
                 return $this->results->fetchAll($opt);

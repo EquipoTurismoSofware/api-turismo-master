@@ -68,6 +68,43 @@
         return $respuesta;
     }
 
+    function dbPatch2($table, $id, $data) { //Inconclusa
+        $respuesta = new stdClass();
+        $respuesta->err = false;
+        $respuesta->errMsg = "";
+            $db = new DB();
+            $db->connect();
+            if(!$db->error()) {
+                $values = "";
+                $values="";
+                $x = 1;
+                foreach($data as $campo=>$valor) {
+                    $values .= "$campo ='" ."$valor'";
+                    if($x < count($data)) {
+                        $values .= ", ";
+                    }
+                    $x++;
+                }
+                $xSQL = "UPDATE " . $table . " SET " . $values . " WHERE id = " . "'$id'";
+                $respuesta->msg=$db->consultar($xSQL)->get_num_rows();
+                // if($db->consultar($xSQL)->error()) {
+                //     $respuesta->err = true;
+                //     $respuesta->sql= $xSQL;
+                //     $respuesta->errMsg = $db->error_msg();
+                // }
+                // else {
+                //     $respuesta->err = true;
+                //     $respuesta->errMsg = $db->error_msg();
+                // }
+            } else {
+                $respuesta->err = true;
+                $respuesta->errMsg = $db->error_msg();
+            }
+            $db->close();
+
+        return $respuesta;
+    }
+
     function dbPatchWithData($table, $id, $origen) {
         $respuesta = new stdClass();
         $respuesta->err = false;
