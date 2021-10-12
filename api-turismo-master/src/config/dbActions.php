@@ -87,15 +87,15 @@
                 }
                 $xSQL = "UPDATE " . $table . " SET " . $values . " WHERE id = " . "'$id'";
                 $respuesta->msg=$db->consultar($xSQL)->get_num_rows();
-                // if($db->consultar($xSQL)->error()) {
-                //     $respuesta->err = true;
-                //     $respuesta->sql= $xSQL;
-                //     $respuesta->errMsg = $db->error_msg();
-                // }
-                // else {
-                //     $respuesta->err = true;
-                //     $respuesta->errMsg = $db->error_msg();
-                // }
+                if($db->consultar($xSQL)->error()) {
+                    $respuesta->err = true;
+                    $respuesta->sql= $xSQL;
+                    $respuesta->errMsg = $db->error_msg();
+                }
+                else {
+                    $respuesta->err = false;
+                    $respuesta->errMsg = $db->error_msg();
+                }
             } else {
                 $respuesta->err = true;
                 $respuesta->errMsg = $db->error_msg();

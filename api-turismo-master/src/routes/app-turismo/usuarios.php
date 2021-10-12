@@ -85,28 +85,25 @@ $app->post("/usuarios", function (Request $request, Response $response, array $a
     });
 
     $app->patch("/usuarios/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    
+        $respuesta= new stdClass;
         $parsedBody = $request->getParsedBody();
             $data = array(
                 "nombreUser" =>$parsedBody["nombreUser"],
                 "apellidoUser" =>$parsedBody["apellidoUser"],
                 "emailUser" =>$parsedBody["emailUser"],
             );
-            $values="";
-            $x = 1;
-            foreach($data as $campo=>$valor) {
-                $values .= "$campo ='" ."$valor'";
-              //  $values .= $campo . " = '" . $origen[$campo] . "'";
-                if($x < count($data)) {
-                    $values .= ", ";
-                }
-                $x++;
-            }
+            if($data["nombreUser"]!=null){
             $respuesta = dbPatch2("usuarios_app", $args["id"], $data);     
+            }
+            else{
+                $respuesta->err=true;
+                $respuesta->errMsg="Error con el objeto, verifique los campos";
+            }       
             return $response
-                ->withStatus(200) //Ok
-                ->withHeader("Content-Type", "application/json")
-                ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));         
+            ->withStatus(200) //Ok
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));  
+        
 
     });
     ?>
