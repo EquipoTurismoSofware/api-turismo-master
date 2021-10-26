@@ -37,6 +37,7 @@
     $container["upload_directory_novedades"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "novedades";
     $container["upload_directory_ciudadesFotos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "ciudadesFotos";
     $container["upload_directory_eventos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "eventos";
+    $container["upload_directory_audios"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "audiosAtractivos";
     //Zonas
     $container["upload_directory_mapa"] = __DIR__ . DIRECTORY_SEPARATOR . "mapas";
     //Fotos de las Zonas (Menu)

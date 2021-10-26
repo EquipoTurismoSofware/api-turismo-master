@@ -997,15 +997,9 @@ $app->post("/gastronomia/{id:[0-9]+}/imagen", function (Request $request, Respon
 //[PATCH]
 
 //Actualizar los datos de un atractivo
-$app->patch("/atractivo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+$app->post("/atractivo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $reglas = array(
-        "id" => array(
-            "mayorcero" => true,
-            "numeric" => true,
-            "tag" => "Identificador de Atractivo"
-        ),
         "idlocalidad" => array(
-            "mayorcero" => true,
             "numeric" => true,
             "tag" => "Identificador de Localidad"
         ),
@@ -1088,16 +1082,32 @@ $app->patch("/atractivo/{id:[0-9]+}", function (Request $request, Response $resp
         "domingo" => array(
             "max" => 100,
             "tag" => "Horario Domingo"
-        ),
-        "imperdible" => array(
-            "tag" => "Imperdible"
-        ),
+        )
     );
     $validar = new Validate();
-    $parsedBody = $request->getParsedBody();
-    if ($validar->validar($parsedBody, $reglas)) {
-        //$respuesta = dbPatchWithData("atractivos", $args["id"], $parsedBody);
-        $respuesta = dbPatchWithData("atractivos", $parsedBody["id"], $parsedBody);
+    
+    if ($validar->validar($request->getParsedBody(), $reglas)) {
+        //Audio
+        $parsedBody = $request->getParsedBody();
+        $directory = $this->get("upload_directory_audios");
+        $uploadedFiles = $request->getUploadedFiles();
+        $file = $parsedBody["audio"];
+
+        if (isset($uploadedFiles["file-uno"])) {
+            $uploadedFile = $uploadedFiles["file-uno"];
+            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                $file = moveUploadedFile($directory, $uploadedFile, 0, 0);
+                if ($file == true) {
+                    $eliminar = $parsedBody["audio"];
+                    @unlink($this->get("upload_directory_audios") . "\\$eliminar");
+                }
+            }
+        }
+        $parsedBody["audio"] = $file;
+        unset($parsedBody["id"]);
+        $respuesta = dbPatchWithData("atractivos", $args["id"], $parsedBody);
+        $respuesta->audio = $file;
+
         return $response
             ->withStatus(200) //Ok
             ->withHeader("Content-Type", "application/json")
