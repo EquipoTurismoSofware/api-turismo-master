@@ -38,6 +38,13 @@
     $container["upload_directory_ciudadesFotos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "ciudadesFotos";
     $container["upload_directory_eventos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "eventos";
     $container["upload_directory_audios"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "audiosAtractivos";
+
+    //GUIAS
+    $container["upload_directory_guias_fotoPerfil"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "guias_turismo" . DIRECTORY_SEPARATOR . "FotosPerfil";
+    $container["upload_directory_guias_capacitaciones"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "guias_turismo" . DIRECTORY_SEPARATOR . "Capacitaciones";
+    $container["upload_directory_guias_certificados"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "guias_turismo" . DIRECTORY_SEPARATOR . "Certificados";
+    $container["upload_directory_guias_titulos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "guias_turismo" . DIRECTORY_SEPARATOR . "Titulos";
+
     //Zonas
     $container["upload_directory_mapa"] = __DIR__ . DIRECTORY_SEPARATOR . "mapas";
     //Fotos de las Zonas (Menu)
@@ -191,7 +198,7 @@
 
     //app-turismo
     //usuarios
-   require "../src/routes/app-turismo/usuarios.php";
+   //require "../src/routes/app-turismo/usuarios.php";
 
     //Cors
     $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
