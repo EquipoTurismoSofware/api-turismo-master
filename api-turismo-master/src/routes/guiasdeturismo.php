@@ -104,74 +104,95 @@ $app->post("/guiasareas", function (Request $request, Response $response, array 
 });
 
 $app->post("/guiasturismox/new", function (Request $request, Response $response, array $args) {
-
         $parsedBody = $request->getParsedBody();
+        $fecha_valida = false;
+        $fecha_valida2 = false;
 
-        $directory1 = $this->get("upload_directory_guias_fotoPerfil");
-        $directory2 = $this->get("upload_directory_guias_capacitaciones");
-        $directory3 = $this->get("upload_directory_guias_certificados");
-        $directory4 = $this->get("upload_directory_guias_titulos");
-
-        $uploadedFiles = $request->getUploadedFiles();
-        
-        $file = "default.jpg";
-        
-        if (isset($uploadedFiles["foto-file"])) {
-            $uploadedFile = $uploadedFiles["foto-file"];
-            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-                $file = moveUploadedFile($directory1, $uploadedFile, 0, 0);
+        if (strpos($parsedBody["fechNac"], "-") !== false && strpos($parsedBody["fechUltimaRenovacion"], "-") !== false) {
+            $data_fechaNac = explode("-", $parsedBody["fechNac"]);
+            $data_fechaRen = explode("-", $parsedBody["fechUltimaRenovacion"]);
+            //YYYY-MM-DD
+            if (count($data_fechaNac) == 3 && count($data_fechaRen) == 3) {
+                $fecha_valida = checkdate($data_fechaNac[1], $data_fechaNac[2], $data_fechaNac[0]);
+                $fecha_valida2 = checkdate($data_fechaRen[1], $data_fechaRen[2], $data_fechaRen[0]);
             }
         }
 
-        $parsedBody["foto"] = $file;
+        if ($fecha_valida == true && $fecha_valida2 == true) {
+            $directory1 = $this->get("upload_directory_guias_fotoPerfil");
+            $directory2 = $this->get("upload_directory_guias_capacitaciones");
+            $directory3 = $this->get("upload_directory_guias_certificados");
+            $directory4 = $this->get("upload_directory_guias_titulos");
 
-        //Capacitaciones
-        $file2 = "default";
-        
-        if (isset($uploadedFiles["capacitaciones-file"])) {
-            $uploadedFile2 = $uploadedFiles["capacitaciones-file"];
-            if ($uploadedFile2->getError() === UPLOAD_ERR_OK) {
-                $file2 = moveUploadedFile($directory2, $uploadedFile2, 0, 0);
+            $uploadedFiles = $request->getUploadedFiles();
+            
+            $file = "default.jpg";
+            
+            if (isset($uploadedFiles["foto-file"])) {
+                $uploadedFile = $uploadedFiles["foto-file"];
+                if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                    $file = moveUploadedFile($directory1, $uploadedFile, 0, 0);
+                }
             }
-        }
 
-        $parsedBody["capacitaciones"] = $file2;
-        
-        //Certificados
-        $file3 = "default";
-        
-        if (isset($uploadedFiles["certificados-file"])) {
-            $uploadedFile3 = $uploadedFiles["certificados-file"];
-            if ($uploadedFile3->getError() === UPLOAD_ERR_OK) {
-                $file3 = moveUploadedFile($directory3, $uploadedFile3, 0, 0);
+            $parsedBody["foto"] = $file;
+
+            //Capacitaciones
+            $file2 = "default";
+            
+            if (isset($uploadedFiles["capacitaciones-file"])) {
+                $uploadedFile2 = $uploadedFiles["capacitaciones-file"];
+                if ($uploadedFile2->getError() === UPLOAD_ERR_OK) {
+                    $file2 = moveUploadedFile($directory2, $uploadedFile2, 0, 0);
+                }
             }
-        }
 
-        $parsedBody["certificados"] = $file3;
-
-        //Titulo
-        $file4 = "default";
-        
-        if (isset($uploadedFiles["titulo-file"])) {
-            $uploadedFile4 = $uploadedFiles["titulo-file"];
-            if ($uploadedFile4->getError() === UPLOAD_ERR_OK) {
-                $file4 = moveUploadedFile($directory4, $uploadedFile4, 0, 0);
+            $parsedBody["capacitaciones"] = $file2;
+            
+            //Certificados
+            $file3 = "default";
+            
+            if (isset($uploadedFiles["certificados-file"])) {
+                $uploadedFile3 = $uploadedFiles["certificados-file"];
+                if ($uploadedFile3->getError() === UPLOAD_ERR_OK) {
+                    $file3 = moveUploadedFile($directory3, $uploadedFile3, 0, 0);
+                }
             }
+
+            $parsedBody["certificados"] = $file3;
+
+            //Titulo
+            $file4 = "default";
+            
+            if (isset($uploadedFiles["titulo-file"])) {
+                $uploadedFile4 = $uploadedFiles["titulo-file"];
+                if ($uploadedFile4->getError() === UPLOAD_ERR_OK) {
+                    $file4 = moveUploadedFile($directory4, $uploadedFile4, 0, 0);
+                }
+            }
+
+            $parsedBody["titulo"] = $file4;
+            
+            $respuesta = dbPostWithData("guias_turismo", $parsedBody);
+            $respuesta->foto = $file;
+            $respuesta->capacitaciones = $file2;
+            $respuesta->certificados = $file3;
+            $respuesta->titulo = $file4;
+
+            return $response
+            ->withStatus(201) //Created
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        } else {
+            $resperr = new stdClass();
+            $resperr->err = true;
+            $resperr->errMsg = "Fecha no válida";
+            $resperr->errMsgs = ["Fecha no válida"];
+            return $response
+                ->withStatus(409) //Conflicto
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         }
-
-        $parsedBody["titulo"] = $file4;
-        
-        $respuesta = dbPostWithData("guias_turismo", $parsedBody);
-        $respuesta->foto = $file;
-        $respuesta->certificados = $file2;
-        $respuesta->capacitaciones = $file3;
-        $respuesta->titulo = $file4;
-
-        return $response
-        ->withStatus(201) //Created
-        ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-        
 });
 
 //Guardar los cambios de una un guia
