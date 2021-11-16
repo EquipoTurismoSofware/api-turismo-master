@@ -1082,6 +1082,12 @@ $app->post("/atractivo/{id:[0-9]+}", function (Request $request, Response $respo
         "domingo" => array(
             "max" => 100,
             "tag" => "Horario Domingo"
+        ),
+        "imperdible" => array(
+            "tag" => "Imperdible"
+        ),
+        "zonaMoto" => array(
+            "tag" => "zonaMoto"
         )
     );
     $validar = new Validate();
@@ -1090,6 +1096,7 @@ $app->post("/atractivo/{id:[0-9]+}", function (Request $request, Response $respo
         //Audio
         $parsedBody = $request->getParsedBody();
         $directory = $this->get("upload_directory_audios");
+        
         $uploadedFiles = $request->getUploadedFiles();
         $file = $parsedBody["audio"];
 

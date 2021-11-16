@@ -123,6 +123,8 @@ $app->post("/guiasturismox/new", function (Request $request, Response $response,
             $directory2 = $this->get("upload_directory_guias_capacitaciones");
             $directory3 = $this->get("upload_directory_guias_certificados");
             $directory4 = $this->get("upload_directory_guias_titulos");
+            $tamanio_maximo = $this->get("max_file_size");
+            $formatos_permitidos = $this->get("allow_file_format");
 
             $uploadedFiles = $request->getUploadedFiles();
             
@@ -131,8 +133,12 @@ $app->post("/guiasturismox/new", function (Request $request, Response $response,
             if (isset($uploadedFiles["foto-file"])) {
                 $uploadedFile = $uploadedFiles["foto-file"];
                 if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-                    $file = moveUploadedFile($directory1, $uploadedFile, 0, 0);
-                }
+                    if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                        if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                            $file = moveUploadedFile($directory1, $uploadedFile, 0, 0);
+                        }
+                    }
+                }   
             }
 
             $parsedBody["foto"] = $file;
