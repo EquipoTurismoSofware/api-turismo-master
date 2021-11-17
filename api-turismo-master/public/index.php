@@ -56,8 +56,9 @@
 
 
     $container["max_file_size"] = 4194304; //4 MB
+    $container["max_file_size2"] = 10000000;
     $container["allow_file_format"] = ["image/jpg", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/svg", "image/ico"]; //Imagenes
-
+    $container["allow_file_format2"] = ["application/pdf", "application/msword", "application/x-rar-compressed", "application/zip"]; //ARCHIVOS
     /**
     * Moves the uploaded file to the upload directory and assigns it a unique name
     * to avoid overwriting an existing uploaded file.
