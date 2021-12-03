@@ -19,7 +19,7 @@ $app->get("/agencias/ciudades", function (Request $request, Response $response, 
     $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM agencias_viaje";
     $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
-    $xSQL .= " WHERE agencias_viaje.adhiereCovid > 0";
+   //$xSQL .= " WHERE agencias_viaje.adhiereCovid > 0";
     $xSQL .= " ORDER BY ciudades.id";
     $respuesta = dbGet($xSQL);
     return $response

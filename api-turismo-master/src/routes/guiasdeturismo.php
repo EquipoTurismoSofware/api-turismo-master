@@ -8,7 +8,7 @@ $app->get("/guiasturismo/ciudades", function (Request $request, Response $respon
     $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM guias_turismo";
     $xSQL .= " INNER JOIN ciudades ON guias_turismo.idciudad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
-    $xSQL .= " WHERE guias_turismo.adhiereCovid > 0";
+    //$xSQL .= " WHERE guias_turismo.adhiereCovid > 0";
     $xSQL .= " ORDER BY ciudades.id";
     $respuesta = dbGet($xSQL);
     return $response
@@ -45,7 +45,7 @@ $app->get("/guiasturismo/areas/{id:[0-9]+}", function (Request $request, Respons
 
 //Datos de todos los guias
 $app->get("/guiasturismo", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT guias_turismo.id, guias_turismo.nombre, categoria, legajo, ambito, telefono, correo, ciudades.nombre as ciudad FROM guias_turismo";
+    $xSQL = "SELECT guias_turismo.id, guias_turismo.nombre, categoria, legajo, ambito, dni, telefono, correo, ciudades.nombre as ciudad FROM guias_turismo";
     $xSQL .= " INNER JOIN ciudades ON ciudades.id = guias_turismo.idciudad";
     $xSQL .= " ORDER BY ciudades.nombre";
     $respuesta = dbGet($xSQL);
@@ -104,6 +104,48 @@ $app->post("/guiasareas", function (Request $request, Response $response, array 
 });
 
 $app->post("/guiasturismox/new", function (Request $request, Response $response, array $args) {
+    $reglas = array(
+        "idciudad" => array(
+            "numeric" => true,
+            "mayorcero" => 0,
+            "tag" => "Identificador de Ciudad"
+        ),
+        "legajo" => array(
+            "numeric" => true,
+            "mayorcero" => 0,
+            "tag" => "Identificador de legajo"
+        ),
+        "categoria" => array(
+            "max" => 150,
+            "tag" => "categoria"
+        ),
+        "nombre" => array(
+            "max" => 150,
+            "tag" => "nombre"
+        ),
+        "direccion" => array(
+            "max" => 150,
+            "tag" => "direccion"
+        ),
+        "ambito" => array(
+            "max" => 150,
+            "tag" => "ambito"
+        ),
+        "telefono" => array(
+            "max" => 150,
+            "tag" => "telefono"
+        ),
+        "correo" => array(
+            "max" => 150,
+            "tag" => "correo"
+        ),
+        "dni" => array(
+            "max" => 150,
+            "tag" => "dni"
+        ),
+    );
+    $validar = new Validate();
+    if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
         $fecha_valida = false;
         $fecha_valida2 = false;
@@ -213,6 +255,16 @@ $app->post("/guiasturismox/new", function (Request $request, Response $response,
                 ->withHeader("Content-Type", "application/json")
                 ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         }
+    } else {
+        $resperr = new stdClass();
+        $resperr->err = true;
+        $resperr->errMsg = "Hay errores en los datos suministrados";
+        $resperr->errMsgs = $validar->errors();
+        return $response
+            ->withStatus(409) //Conflicto
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    }
 });
 
 //Guardar los cambios de una un guia
