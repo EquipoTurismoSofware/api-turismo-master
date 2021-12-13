@@ -413,6 +413,10 @@ $app->post("/guia", function (Request $request, Response $response, array $args)
             "max" => 5,
             "tag" => "Legajo"
         ),
+        "cuit"=> array(
+            "max" => 13,
+            "tag" =>"Cuit"
+        ),
         "domicilio" => array(
             "max" => 100,
             "tag" => "Domicilio"
@@ -582,6 +586,7 @@ $app->post("/guia", function (Request $request, Response $response, array $args)
                     "idvalortipcat" => $parsedBody["idvalortipcat"],
                     "nombre" => $parsedBody["nombre"],
                     "legajo" => $parsedBody["legajo"],
+                    "cuit" =>$parsedBody["cuit"],
                     "domicilio" => $parsedBody["domicilio"],
                     "telefono" => $parsedBody["telefono"],
                     "habitaciones" => $parsedBody["habitaciones"],
@@ -900,6 +905,10 @@ $app->post("/guia/{id:[0-9]+}", function (Request $request, Response $response, 
             "max" => 5,
             "tag" => "Legajo"
         ),
+        "cuit" => array(
+            "max" => 13,
+            "tag" => "Cuit"
+        ),
         "domicilio" => array(
             "max" => 100,
             "tag" => "Domicilio"
@@ -1066,6 +1075,7 @@ $app->post("/guia/{id:[0-9]+}", function (Request $request, Response $response, 
                     "idvalortipcat" => $parsedBody["idvalortipcat"],
                     "nombre" => $parsedBody["nombre"],
                     "legajo" => $parsedBody["legajo"],
+                    "cuit" => $parsedBody["cuit"],
                     "domicilio" => $parsedBody["domicilio"],
                     "telefono" => $parsedBody["telefono"],
                     "habitaciones" => $parsedBody["habitaciones"],
