@@ -12,6 +12,24 @@
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     });
 
+    $app->get("/tiposUser", function (Request $request, Response $response, array $args) {
+        $respuesta = dbGet("SELECT * FROM tipo_usuario");
+        return $response
+            ->withStatus(200)
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    });
+
+    $app->get("/user/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+        $xSQL = "SELECT email, password, nombre, activo, idtipo FROM usuarios WHERE id = " . $args["id"];
+        $respuesta = dbGet($xSQL);
+
+        return $response
+            ->withStatus(200)
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    });
+
     $app->patch("/user/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
         $reglas = array(
             "email" => array(
@@ -26,8 +44,8 @@
         if($validar->validar($parsedBody, $reglas)) {
             $data = array(
                 "email" => $parsedBody["email"],
-                "password" => password_hash($parsedBody["password"], PASSWORD_BCRYPT),
                 "nombre"  => $parsedBody["nombre"],
+                "idtipo" => $parsedBody["idtipo"],
                 "activo" => $parsedBody["activo"]
             );
             $respuesta = dbPatchWithData("usuarios", $args["id"], $data);     
@@ -183,7 +201,7 @@
                 "p_patch" => true,
                 "p_delete" => true,
                 "ingreso" => date("Y-m-d"),
-                "idtipo" => 1,
+                "idtipo" => $parsedBody["idtipo"],
                 "activo" => 1
             );
             $respuesta = dbPostWithData("usuarios", $data);
@@ -205,10 +223,9 @@
 
     //Eliminar un Usuario
     $app->delete("/user/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-        $respuesta = dbDelete("usuarios", $arg["id"]);
+        $respuesta = dbDelete("usuarios", $args["id"]);
         return $response
             ->withStatus(200) //Ok
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     });
-?>
