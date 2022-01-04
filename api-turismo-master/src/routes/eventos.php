@@ -9,10 +9,12 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 //Todos los Eventos
 $app->get("/eventos", function (Request $request, Response $response, array $args) {
-    $fecha = date("Y-m-d");
-    $xSQL = "SELECT eventos.*, ciudades.nombre AS localidad FROM eventos";
+    $fecha = date("Y-m-d"); //
+    $xSQL = "SELECT eventos.*, ciudades.nombre AS localidad ,  zonas.color FROM eventos";
     $xSQL .= " INNER JOIN ciudades ON eventos.idlocalidad = ciudades.id";
-    $xSQL .= " WHERE eventos.hfecha  >=  $fecha";
+    $xSQL .= " INNER JOIN zonas_ciudades ON eventos.idlocalidad = zonas_ciudades.idciudad";
+    $xSQL .= " INNER JOIN zonas ON zonas_ciudades.idzona = zonas.id";
+    $xSQL .= " WHERE eventos.hfecha  >= CURDATE()";
     $xSQL .= " ORDER BY eventos.dfecha";
     $respuesta = dbGet($xSQL);
     return $response
