@@ -65,11 +65,12 @@ $app->get("/guias/galeriaupdate", function (Request $request, Response $response
 */
 
 $app->get("/guias/list", function (Request $request, Response $response, array $args) {
-    $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, ciudades.nombre AS ciudad,galeria.imagen FROM guias";
+    $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.activo, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, ciudades.nombre AS ciudad,galeria.imagen FROM guias";
    $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
    $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
    $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
    $xSQL .= " WHERE galeria.numeracion = 1";
+   $xSQL .= " AND guias.activo = 1";
    $xSQL .= " ORDER BY ciudades.nombre";
 
    $guias = dbGet($xSQL);
@@ -111,7 +112,7 @@ $app->get("/guia/galeriaupdate", function (Request $request, Response $response,
 
 
 $app->get("/guias/adheridosACovid", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT DISTINCT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, galeria.imagen, ciudades.nombre AS ciudad FROM guias";
+    $xSQL = "SELECT DISTINCT guias.id, guias.idciudad, guias.idtipo, , guias.activo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, galeria.imagen, ciudades.nombre AS ciudad FROM guias";
     $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
     $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
@@ -162,7 +163,7 @@ $app->get("/guias/ultimo", function (Request $request, Response $response, array
 
 //Obtener las Guias de una determinada Ciudad (Full)
 $app->get("/guias/ciudad/{id:[0-9]+}/full", function (Request $request, Response $response, array $args) {
-    $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, ciudades.caracteristica, tipos.descripcion AS tipo, ciudades.nombre AS ciudad,galeria.imagen FROM guias";
+    $xSQL = "  SELECT guias.id, guias.idciudad, guias.idtipo, guias.nombre, guias.telefono, guias.activo, ciudades.caracteristica, tipos.descripcion AS tipo, ciudades.nombre AS ciudad,galeria.imagen FROM guias";
     $xSQL .= " INNER JOIN ciudades ON guias.idciudad = ciudades.id";
     $xSQL .= " INNER JOIN galeria ON guias.id = galeria.idgaleria";
     $xSQL .= " INNER JOIN tipos ON guias.idtipo = tipos.id";
