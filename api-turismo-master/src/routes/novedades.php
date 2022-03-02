@@ -115,11 +115,58 @@ $app->post("/novedad", function (Request $request, Response $response, array $ar
                     }
                 }
             }
+
+             //img-tres
+             $img_tres = "default.jpg";
+             if (isset($uploadedFiles["img-tres"])) {
+                 // handle single input with single file upload
+                 $uploadedFile = $uploadedFiles["img-tres"];
+                 if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                     if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                         if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                             $img_tres = moveUploadedFile($directory, $uploadedFile, 0, 2);
+                         }
+                     }
+                 }
+             }
+            //img-cuatro
+            $img_cuatro = "default.jpg";
+            if (isset($uploadedFiles["img-cuatro"])) {
+                // handle single input with single file upload
+                $uploadedFile = $uploadedFiles["img-cuatro"];
+                if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                    if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                        if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                            $img_cuatro = moveUploadedFile($directory, $uploadedFile, 0, 3);
+                        }
+                    }
+                }
+            }
+             //img-cinco
+             $img_cinco = "default.jpg";
+             if (isset($uploadedFiles["img-cinco"])) {
+                 // handle single input with single file upload
+                 $uploadedFile = $uploadedFiles["img-cinco"];
+                 if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                     if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                         if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                             $img_cinco = moveUploadedFile($directory, $uploadedFile, 0, 4);
+                         }
+                     }
+                 }
+             }
+ 
             $parsedBody["foto_uno"] = $img_uno;
             $parsedBody["foto_dos"] = $img_dos;
+            $parsedBody["foto_tres"] = $img_tres;
+            $parsedBody["foto_cuatro"] = $img_cuatro;
+            $parsedBody["foto_cinco"] = $img_cinco;
             $respuesta = dbPostWithData("novedades", $parsedBody);
             $respuesta->foto_uno = $img_uno;
             $respuesta->foto_dos = $img_dos;
+            $respuesta->foto_tres = $img_tres;
+            $respuesta->foto_cuatro = $img_cuatro;
+            $respuesta->foto_cinco = $img_cinco;
             return $response
                 ->withStatus(201) //Created
                 ->withHeader("Content-Type", "application/json")
@@ -229,13 +276,79 @@ $app->post("/novedad/{id:[0-9]+}", function (Request $request, Response $respons
                 }
             }
         }
+         //img-tres
+         $img_tres = $parsedBody["foto_tres"];
+         if (isset($uploadedFiles["img-tres"])) {
+             // handle single input with single file upload
+             $uploadedFile = $uploadedFiles["img-tres"];
+             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                 if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                     if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                         $img_tres = moveUploadedFile($directory, $uploadedFile, 0, 2);
+                         if ($img_tres == true) {
+                             //Eliminar la vieja imagen dos si no es default.jpg
+                             $eliminar = $parsedBody["foto_tres"];
+                             if ($eliminar != "default.jpg") {
+                                 @unlink($this->get("upload_directory_novedades") . "\\$eliminar");
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+          //img-cuatro
+        $img_cuatro = $parsedBody["foto_cuatro"];
+        if (isset($uploadedFiles["img-cuatro"])) {
+            // handle single input with single file upload
+            $uploadedFile = $uploadedFiles["img-cuatro"];
+            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                    if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                        $img_cuatro = moveUploadedFile($directory, $uploadedFile, 0, 3);
+                        if ($img_cuatro == true) {
+                            //Eliminar la vieja imagen dos si no es default.jpg
+                            $eliminar = $parsedBody["foto_cuatro"];
+                            if ($eliminar != "default.jpg") {
+                                @unlink($this->get("upload_directory_novedades") . "\\$eliminar");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+         //img-cinco
+         $img_cinco = $parsedBody["foto_cinco"];
+         if (isset($uploadedFiles["img-cinco"])) {
+             // handle single input with single file upload
+             $uploadedFile = $uploadedFiles["img-cinco"];
+             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                 if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                     if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                         $img_cinco = moveUploadedFile($directory, $uploadedFile, 0, 4);
+                         if ($img_cinco == true) {
+                             //Eliminar la vieja imagen dos si no es default.jpg
+                             $eliminar = $parsedBody["foto_cinco"];
+                             if ($eliminar != "default.jpg") {
+                                 @unlink($this->get("upload_directory_novedades") . "\\$eliminar");
+                             }
+                         }
+                     }
+                 }
+             }
+         }
         $parsedBody["foto_uno"] = $img_uno;
         $parsedBody["foto_dos"] = $img_dos;
+        $parsedBody["foto_tres"] = $img_tres;
+        $parsedBody["foto_cuatro"] = $img_cuatro;
+        $parsedBody["foto_cinco"] = $img_cinco;
         //Eliminar de $parsedBody id
         unset($parsedBody["id"]);
         $respuesta = dbPatchWithData("novedades", $args["id"], $parsedBody);
         $respuesta->foto_uno = $img_uno;
         $respuesta->foto_dos = $img_dos;
+        $respuesta->foto_tres = $img_tres;
+        $respuesta->foto_cuatro = $img_cuatro;
+        $respuesta->foto_cinco = $img_cinco;
         if ($respuesta->err) {
             return $response
                 ->withStatus(409) //Conflicto
@@ -263,13 +376,25 @@ $app->post("/novedad/{id:[0-9]+}", function (Request $request, Response $respons
 
 //Eliminar una Novedad
 $app->delete("/novedad/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $archivo = dbGet("SELECT foto_uno, foto_dos FROM novedades WHERE id = " . $args["id"]);
+    $archivo = dbGet("SELECT foto_uno, foto_dos ,foto_tres, foto_cuatro, foto_cinco FROM novedades WHERE id = " . $args["id"]);
     if ($archivo->err == false && $archivo->data["count"] > 0) {
         $fileX = $archivo->data["registros"][0]->foto_uno;
         if ($fileX != "default.jpg") {
             @unlink($this->get("upload_directory_novedades") . "\\$fileX");
         }
         $fileX = $archivo->data["registros"][0]->foto_dos;
+        if ($fileX != "default.jpg") {
+            @unlink($this->get("upload_directory_novedades") . "\\$fileX");
+        }
+        $fileX = $archivo->data["registros"][0]->foto_tres;
+        if ($fileX != "default.jpg") {
+            @unlink($this->get("upload_directory_novedades") . "\\$fileX");
+        }
+        $fileX = $archivo->data["registros"][0]->foto_cuatro;
+        if ($fileX != "default.jpg") {
+            @unlink($this->get("upload_directory_novedades") . "\\$fileX");
+        }
+        $fileX = $archivo->data["registros"][0]->foto_cinco;
         if ($fileX != "default.jpg") {
             @unlink($this->get("upload_directory_novedades") . "\\$fileX");
         }
