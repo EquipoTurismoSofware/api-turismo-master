@@ -35,6 +35,7 @@
     $container["upload_directory_carrusel"] = __DIR__ . DIRECTORY_SEPARATOR . "carrusel";
     $container["upload_directory_gastronomia"] = __DIR__ . DIRECTORY_SEPARATOR . "gastronomia";
     $container["upload_directory_novedades"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "novedades";
+    $container["upload_directory_arboles"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "arboles";
     $container["upload_directory_ciudadesFotos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "ciudadesFotos";
     $container["upload_directory_eventos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "eventos";
     $container["upload_directory_audios"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "audiosAtractivos";
@@ -196,6 +197,8 @@
     require "../src/routes/carrusel.php";
     // Agencia de Viajes 
     require "../src/routes/agencias.php";
+    //Arboles
+    require "../src/routes/arboles.php";
 
     //app-turismo
     //usuarios
