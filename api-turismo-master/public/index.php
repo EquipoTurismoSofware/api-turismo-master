@@ -199,7 +199,10 @@
     require "../src/routes/agencias.php";
     //Arboles
     require "../src/routes/arboles.php";
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     //app-turismo
     //usuarios
    //require "../src/routes/app-turismo/usuarios.php";

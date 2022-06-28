@@ -52,6 +52,7 @@ $app->post("/arbol", function (Request $request, Response $response, array $args
             "tag" => "Nombre científico"
         ),
         "origen" => array(
+<<<<<<< Updated upstream
             "max" => 75,
             "tag" => "Origen"
         ),
@@ -60,12 +61,37 @@ $app->post("/arbol", function (Request $request, Response $response, array $args
         ),
         "caracteristicasHTML" => array(
             "tag" => "caracteristicasHTML"
+=======
+            "min" => 3,
+            "max" => 75,
+            "tag" => "Origen"
+        ),
+        "descripcion" => array(
+            "min" => 3,
+            "tag" => "Descripcion"
+        ),
+        "descripcionHTML" => array(
+            "tag" => "descripcionHTML"
+>>>>>>> Stashed changes
         )  
      );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
+<<<<<<< Updated upstream
 
+=======
+        //Preguntar si sacar validacion de fecha
+        $fecha_valida = true;//false if validation is needed
+        // if (strpos($parsedBody["fecha"], "-") !== false) {
+        //     $data_fecha = explode("-", $parsedBody["fecha"]);
+        //     //YYYY-MM-DD
+        //     if (count($data_fecha) == 3) {
+        //         $fecha_valida = checkdate($data_fecha[1], $data_fecha[2], $data_fecha[0]);
+        //     }
+        // }
+        if ($fecha_valida == true) {
+>>>>>>> Stashed changes
             //Imágenes
             $directory = $this->get("upload_directory_arboles");
             $tamanio_maximo = $this->get("max_file_size");
@@ -135,11 +161,28 @@ $app->post("/arbol", function (Request $request, Response $response, array $args
             $respuesta->foto_dos = $img_dos;
             $respuesta->foto_tres = $img_tres;
             $respuesta->foto_cuatro = $img_cuatro;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
             return $response
                 ->withStatus(201) //Created
                 ->withHeader("Content-Type", "application/json")
                 ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+<<<<<<< Updated upstream
     
+=======
+        } else { //Disabled
+            $resperr = new stdClass();
+            $resperr->err = true;
+            $resperr->errMsg = "Fecha no válida";
+            $resperr->errMsgs = ["Fecha no válida"];
+            return $response
+                ->withStatus(409) //Conflicto
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        }
+>>>>>>> Stashed changes
     } else {
         $resperr = new stdClass();
         $resperr->err = true;
@@ -164,10 +207,15 @@ $app->post("/arbol/{id:[0-9]+}", function (Request $request, Response $response,
             "tag" => "Nombre popular"
         ),
         "nombre_cientifico" => array(
+<<<<<<< Updated upstream
+=======
+            "min" => 3,
+>>>>>>> Stashed changes
             "max" => 50,
             "tag" => "Nombre cientifico"
         ),
         "origen" => array(
+<<<<<<< Updated upstream
             "max" => 75,
             "tag" => "Origen"
         ),
@@ -176,6 +224,18 @@ $app->post("/arbol/{id:[0-9]+}", function (Request $request, Response $response,
         ),
         "caracteristicasHTML" => array(
             "tag" => "caracteristicasHTML"
+=======
+            "min" => 3,
+            "max" => 75,
+            "tag" => "Origen"
+        ),
+        "descripcion" => array(
+            "min" => 3,
+            "tag" => "Descripcion"
+        ),
+        "descripcionHTML" => array(
+            "tag" => "descripcionHTML"
+>>>>>>> Stashed changes
         )
     );
 
@@ -271,7 +331,11 @@ $app->post("/arbol/{id:[0-9]+}", function (Request $request, Response $response,
         $parsedBody["foto_dos"] = $img_dos;
         $parsedBody["foto_tres"] = $img_tres;
         $parsedBody["foto_cuatro"] = $img_cuatro;
+<<<<<<< Updated upstream
         
+=======
+
+>>>>>>> Stashed changes
         //Eliminar de $parsedBody id
         unset($parsedBody["id"]);
         $respuesta = dbPatchWithData("arboles", $args["id"], $parsedBody);
@@ -302,6 +366,7 @@ $app->post("/arbol/{id:[0-9]+}", function (Request $request, Response $response,
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 });
+<<<<<<< Updated upstream
 
 //[DELETE]
 
@@ -336,3 +401,5 @@ $app->delete("/arbol/{id:[0-9]+}", function (Request $request, Response $respons
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
+=======
+>>>>>>> Stashed changes
