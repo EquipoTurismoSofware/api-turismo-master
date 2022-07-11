@@ -199,6 +199,8 @@
     require "../src/routes/agencias.php";
     //Arboles
     require "../src/routes/arboles.php";
+    //Galeria Localidades
+    require "../src/routes/galeria_localidades.php";
     //app-turismo
     //usuarios
    //require "../src/routes/app-turismo/usuarios.php";
