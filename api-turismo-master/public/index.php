@@ -39,6 +39,8 @@
     $container["upload_directory_ciudadesFotos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "ciudadesFotos";
     $container["upload_directory_eventos"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "eventos";
     $container["upload_directory_audios"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "audiosAtractivos";
+    $container["upload_directory_galeriaLocalidad"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "galeriaLocalidad";
+
 
     //GUIAS
     $container["upload_directory_guias_fotoPerfil"] = __DIR__ . DIRECTORY_SEPARATOR . "recursos" . DIRECTORY_SEPARATOR . "guias_turismo" . DIRECTORY_SEPARATOR . "FotosPerfil";
@@ -199,9 +201,13 @@
     require "../src/routes/agencias.php";
     //Arboles
     require "../src/routes/arboles.php";
-    //Galeria Localidades
+    //Galeria por Localidades
     require "../src/routes/galeria_localidades.php";
+    //Tag
+    require "../src/routes/tag.php";
+
     //app-turismo
+    
     //usuarios
    //require "../src/routes/app-turismo/usuarios.php";
 
