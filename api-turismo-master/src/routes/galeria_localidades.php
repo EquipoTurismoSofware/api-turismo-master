@@ -8,7 +8,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 //Obtener todas las fotos 
 $app->get("/fotos", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM galeria_localidades ORDER BY idlocalidad DESC";
+    $xSQL = "SELECT * FROM galeria_localidades ORDER BY idloc DESC";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
@@ -30,21 +30,21 @@ $app->get("/foto/{id:[0-9]+}/tag", function (Request $request, Response $respons
 });
 
 //Obtener las últimas fotos  buscadas
-$app->get("/galeria_localidades/{busqueda:[A-z]+}", function (Request $request, Response $response, array $args) {
+$app->get("/buscaGaleria/{busqueda:[a-zA-Z]+}", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT gl.id id, gl.imagen img, d.nombre localidad, c.nombre ciudad, d.toplocalidad toplocalidad, t.nombre tag";
-    $xSQL .= "FROM galeria_localidades gl"; 
-    $xSQL .= "JOIN departamentos d";
-    $xSQL .= "JOIN gal_tag gt";
-    $xSQL .= "JOIN tag t";
-    $xSQL .= "JOiN ciudades c";
-    $xSQL .= "WHERE gl.idloc = d.id";
-    $xSQL .= "AND gl.id = gt.id_img";
-    $xSQL .= "AND gt.id_tag = t.id";
-    $xSQL .= "AND gl.idciudad = c.id";
-    $xSQL .= "AND (c.nombre LIKE '%" . $args["busqueda"] . "%'";
-    $xSQL .= "OR d.nombre LIKE '%" . $args["busqueda"] . "%'";
-    $xSQL .= "OR t.nombre LIKE '%" . $args["busqueda"] . "%')";
-    $xSQL .= "ORDER BY d.nombre, d.toplocalidad DESC";
+    $xSQL .= " FROM galeria_localidades gl"; 
+    $xSQL .= " JOIN departamentos d";
+    $xSQL .= " JOIN gal_tag gt";
+    $xSQL .= " JOIN tag t";
+    $xSQL .= " JOIN ciudades c";
+    $xSQL .= " WHERE gl.idloc = d.id";
+    $xSQL .= " AND gl.id = gt.id_img";
+    $xSQL .= " AND gt.id_tag = t.id";
+    $xSQL .= " AND gl.idciudad = c.id";
+    $xSQL .= " AND (c.nombre LIKE '%" . $args["busqueda"] . "%'";
+    $xSQL .= " OR d.nombre LIKE '%" . $args["busqueda"] . "%'";
+    $xSQL .= " OR t.nombre LIKE '%" . $args["busqueda"] . "%')";
+    $xSQL .= " ORDER BY d.nombre, d.toplocalidad DESC";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
@@ -87,7 +87,7 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
     if ($validar->validar($request->getParsedBody())) {
         $parsedBody = $request->getParsedBody();
         //Imágenes
-        $directory = $this->get("upload_directory_galeriaLocalidad");
+        $directory = $this->get("upload_directory_carrusel");
         $tamanio_maximo = $this->get("max_file_size");
         $formatos_permitidos = $this->get("allow_file_format");
         $uploadedFiles = $request->getUploadedFiles();
@@ -112,6 +112,7 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
+    
 });
 
 
