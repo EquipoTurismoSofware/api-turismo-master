@@ -87,7 +87,7 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
     if ($validar->validar($request->getParsedBody())) {
         $parsedBody = $request->getParsedBody();
         //Imágenes
-        $directory = $this->get("upload_directory_carrusel");
+        $directory = $this->get("upload_directory_galeriaLocalidad");
         $tamanio_maximo = $this->get("max_file_size");
         $formatos_permitidos = $this->get("allow_file_format");
         $uploadedFiles = $request->getUploadedFiles();
@@ -112,7 +112,6 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
-    
 });
 
 
