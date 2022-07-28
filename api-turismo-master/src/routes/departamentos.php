@@ -13,6 +13,16 @@
             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     });
 
+    //Dada una id de cuidad devuelve el departamento al que pertenece
+    $app->get("/departamentos/ciudad/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+        $respuesta = dbGet("SELECT d.id id, d.nombre departamento FROM ciudades c JOIN departamentos d WHERE c.iddepartamento = d.id
+        AND c.id = " . $args["id"] . " ");
+        return $response
+            ->withStatus(200)
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    });
+
     //Todos los Departamentos de una determinada Provincia
     /*
         Si bien solo se trabaja en la Provincia de San Luis, el sistema esta preparado para operar en una o más provincias

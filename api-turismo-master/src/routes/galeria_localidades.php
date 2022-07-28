@@ -52,7 +52,7 @@ $app->get("/buscaGaleria/{busqueda:[a-zA-Z]+}", function (Request $request, Resp
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 //Obtener las últimas fotos cargadas
-$app->get("/galeria_localidades", function (Request $request, Response $response, array $args) {
+$app->get("/galeria_localidad", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT gl.id id, gl.imagen img, d.nombre localidad, c.nombre ciudad, d.toplocalidad toplocalidad, t.nombre tag
     FROM galeria_localidades gl 
     JOIN departamentos d
@@ -74,46 +74,100 @@ $app->get("/galeria_localidades", function (Request $request, Response $response
 
 //[POST]
 
-//Agregar una imagen
+//Agregar un árbol
 $app->post("/addfotoloc", function (Request $request, Response $response, array $args) {
     $reglas = array(
-        "idlocalidad" => array(
-            "mayorcero" => true,
-            "numeric" => true,
-            "tag" => "Identificador de Localidad"
-        )
-    );
+
+     );
     $validar = new Validate();
-    if ($validar->validar($request->getParsedBody())) {
+    if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
-        //Imágenes
-        $directory = $this->get("upload_directory_carrusel");
-        $tamanio_maximo = $this->get("max_file_size");
-        $formatos_permitidos = $this->get("allow_file_format");
-        $uploadedFiles = $request->getUploadedFiles();
-        //img-uno
-        $img_uno = "default.jpg";
-        if (isset($uploadedFiles["img-uno"])) {
-            $uploadedFile = $uploadedFiles["img-uno"];
-            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-                if ($uploadedFile->getSize() <= $tamanio_maximo) {
-                    if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
-                        $img_uno = moveUploadedFile($directory, $uploadedFile, 0, 0);
+        //echo $parsedBody;
+        
+
+            //Imágenes
+            $directory = $this->get("upload_directory_galeriaLocalidad");
+            $tamanio_maximo = $this->get("max_file_size");
+            $formatos_permitidos = $this->get("allow_file_format");
+            $uploadedFiles = $request->getUploadedFiles();
+            //img-uno
+            $imagen = "default.jpg";
+            if (isset($uploadedFiles["imagen"])) {
+                // handle single input with single file upload
+                $uploadedFile = $uploadedFiles["img-uno"];
+                if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                    if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                        if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                            $imagen = moveUploadedFile($directory, $uploadedFile, 0, 0);
+                        }
                     }
                 }
             }
-        }
+ 
+            $parsedBody["imagen"] = $imagen;
 
-        $parsedBody["image"] = $img_uno;
-        $respuesta = dbPostWithData("galeria_localidades", $parsedBody);
-        $respuesta->image = $img_uno;
+            $respuesta = dbPostWithData("galeria_localidades", $parsedBody);
+            $respuesta->imagen = $imagen;
+     
+            return $response
+                ->withStatus(201) //Created
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+
+    } else {
+        $resperr = new stdClass();
+        $resperr->err = true;
+        $resperr->errMsg = "Hay errores en los datos suministrados";
+        $resperr->errMsgs = $validar->errors();
         return $response
-            ->withStatus(201) //Created
+            ->withStatus(409) //Conflicto
             ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
     
 });
+
+
+//Agregar una imagen
+// $app->post("/addfotoloc/{idLoc:[0-9]+}", function (Request $request, Response $response, array $args) {
+//     $reglas = array(
+//         "idlocalidad" => array(
+//             //"mayorcero" => true,
+//             "numeric" => true,
+//             //"tag" => "Identificador de Localidad"
+//         )
+//     );
+//     $validar = new Validate();
+//     if ($validar->validar($request->getParsedBody())) {
+//         $parsedBody = $request->getParsedBody();
+//         //Imágenes
+//         $directory = $this->get("upload_directory_galeriaLocalidad");
+//         $tamanio_maximo = $this->get("max_file_size");
+//         $formatos_permitidos = $this->get("allow_file_format");
+//         $uploadedFiles = $request->getUploadedFiles();
+//         //img-uno
+//         $img_uno = "default.jpg";
+//         if (isset($uploadedFiles["img-uno"])) {
+//             $uploadedFile = $uploadedFiles["img-uno"];
+//             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+//                 if ($uploadedFile->getSize() <= $tamanio_maximo) {
+//                     if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+//                         $img_uno = moveUploadedFile($directory, $uploadedFile, 0, 0);
+//                     }
+//                 }
+//             }
+//         }
+
+//         $parsedBody["image"] = $img_uno;
+//         $respuesta = dbPostWithData("galeria_localidades", $parsedBody);
+//         $respuesta->image = $img_uno;
+//         return $response
+//             ->withStatus(201) //Created
+//             ->withHeader("Content-Type", "application/json")
+//             ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+//     }
+// });
+
 
 
 // DELETE 
