@@ -74,7 +74,7 @@ $app->get("/galeria_localidad", function (Request $request, Response $response, 
 
 //[POST]
 
-//Agregar un árbol
+//Agregar un una nueva foto
 $app->post("/addfotoloc", function (Request $request, Response $response, array $args) {
     $reglas = array(
 
@@ -82,9 +82,6 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
-        //echo $parsedBody;
-        
-
             //Imágenes
             $directory = $this->get("upload_directory_galeriaLocalidad");
             $tamanio_maximo = $this->get("max_file_size");
@@ -94,7 +91,7 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
             $imagen = "default.jpg";
             if (isset($uploadedFiles["imagen"])) {
                 // handle single input with single file upload
-                $uploadedFile = $uploadedFiles["img-uno"];
+                $uploadedFile = $uploadedFiles["imagen"];
                 if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
                     if ($uploadedFile->getSize() <= $tamanio_maximo) {
                         if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
