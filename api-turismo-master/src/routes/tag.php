@@ -8,7 +8,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 // Obtiene todas las etiqutas 
 
 $app->get("/tags", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM tag ORDER BY nombre ASC";
+    $xSQL = "SELECT id, nombre, true as visible FROM tag ORDER BY nombre ASC";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
