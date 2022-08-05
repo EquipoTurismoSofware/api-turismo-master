@@ -16,6 +16,16 @@ $app->get("/fotos", function (Request $request, Response $response, array $args)
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//Obtener los últimas fotos especidicando una cantidad especifica d registros.
+$app->get("/listfotos/{cantidad:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM galeria_localidades ORDER BY id DESC LIMIT 0, " . $args["cantidad"];
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 //Obtener los tags de una imagen en particular
 $app->get("/foto/{id:[0-9]+}/tag", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT  gal_tag.*, tag.nombre  FROM gal_tag ";
@@ -71,6 +81,15 @@ $app->get("/galeria_localidad", function (Request $request, Response $response, 
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+//Obtener los datos de una deteriminada foto de la galeria
+$app->get("/galerialocalidad/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT * FROM galeria_localidades WHERE id = " . $args["id"];
+    $respuesta = dbGet($xSQL);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
 
 //[POST]
 
@@ -177,5 +196,22 @@ $app->delete("/foto/tag/{idTagFoto:[0-9]+}", function (Request $request, Respons
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
+
+//Eliminar un Árbol
+$app->delete("/delfotoloc/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $archivo = dbGet("SELECT imagen FROM arboles WHERE id = " . $args["id"]);
+    if ($archivo->err == false && $archivo->data["count"] > 0) {
+        $fileX = $archivo->data["registros"][0]->imagen;
+        if ($fileX != "default.jpg") {
+            @unlink($this->get("upload_directory_galeriaLocalidad") . "\\$fileX");
+        }
+    }
+    $respuesta = dbDelete("galeria_localidades", $args["id"]);
+    return $response
+        ->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 
 ?>
