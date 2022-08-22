@@ -107,7 +107,7 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
             $formatos_permitidos = $this->get("allow_file_format");
             $uploadedFiles = $request->getUploadedFiles();
             //img-uno
-            $imagen = "default.jpg";
+            $imagen = $parsedBody["imagen"];
             if (isset($uploadedFiles["imagen"])) {
                 // handle single input with single file upload
                 $uploadedFile = $uploadedFiles["imagen"];
@@ -115,6 +115,13 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
                     if ($uploadedFile->getSize() <= $tamanio_maximo) {
                         if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
                             $imagen = moveUploadedFile($directory, $uploadedFile, 0, 0);
+                            if($imagen == true) {
+                                //Eliminar la vieja imagen uno si no es default.jpg
+                            $eliminar = $parsedBody["imagen"];
+                            if ($eliminar != "default.jpg") {
+                                @unlink($this->get("upload_directory_galeriaLocalidad") . "\\$eliminar");
+                            }
+                            }
                         }
                     }
                 }
@@ -143,6 +150,70 @@ $app->post("/addfotoloc", function (Request $request, Response $response, array 
     
 });
 
+//Guardar los cambios de una Foto (El metodo es post debido a las imàgenes [No funciona con partch si tiene imagenes])
+
+$app->post("/altfotoloc/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $reglas = array(
+
+    );
+
+    $validar = new Validate();
+    if ($validar->validar($request->getParsedBody(), $reglas)) {
+        $parsedBody = $request->getParsedBody();
+        //Imágenes
+        $directory = $this->get("upload_directory_galeriaLocalidad");
+        $tamanio_maximo = $this->get("max_file_size");
+        $formatos_permitidos = $this->get("allow_file_format");
+        $uploadedFiles = $request->getUploadedFiles();
+        //img-uno
+        $imagen = $parsedBody["imagen"];
+        if (isset($uploadedFiles["imagen"])) {
+            $uploadedFile = $uploadedFiles["imagen"];
+            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                if ($uploadedFile->getSize() <= $tamanio_maximo) {
+                    if (in_array($uploadedFile->getClientMediaType(), $formatos_permitidos)) {
+                        $imagen = moveUploadedFile($directory, $uploadedFile, 0, 0);
+                        if ($imagen == true) {
+                            //Eliminar la vieja imagen uno si no es default.jpg
+                            $eliminar = $parsedBody["imagen"];
+                            if ($eliminar != "default.jpg") {
+                                @unlink($this->get("upload_directory_galeriaLocalidad") . "\\$eliminar");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $parsedBody["imagen"] = $imagen;
+
+        //Eliminar de $parsedBody id
+        unset($parsedBody["id"]);
+        $respuesta = dbPatchWithData("galeria_localidades", $args["id"], $parsedBody);
+        $respuesta->imagen = $imagen;
+
+        if ($respuesta->err) {
+            return $response
+                ->withStatus(409) //Conflicto
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        } else {
+            return $response
+                ->withStatus(200) //Ok
+                ->withHeader("Content-Type", "application/json")
+                ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        }
+    } else {
+        $resperr = new stdClass();
+        $resperr->err = true;
+        $resperr->errMsg = "Hay errores en los datos suministrados";
+        $resperr->errMsgs = $validar->errors();
+        return $response
+            ->withStatus(409) //Conflicto
+            ->withHeader("Content-Type", "application/json")
+            ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    }
+});
 
 //Agregar una imagen
 // $app->post("/addfotoloc/{idLoc:[0-9]+}", function (Request $request, Response $response, array $args) {
@@ -197,9 +268,9 @@ $app->delete("/foto/tag/{idTagFoto:[0-9]+}", function (Request $request, Respons
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
-//Eliminar un Árbol
+//Eliminar una Foto
 $app->delete("/delfotoloc/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $archivo = dbGet("SELECT imagen FROM arboles WHERE id = " . $args["id"]);
+    $archivo = dbGet("SELECT imagen FROM galeria_localidades WHERE id = " . $args["id"]);
     if ($archivo->err == false && $archivo->data["count"] > 0) {
         $fileX = $archivo->data["registros"][0]->imagen;
         if ($fileX != "default.jpg") {
