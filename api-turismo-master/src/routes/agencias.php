@@ -7,7 +7,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get("/agencias/viaje", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT agencias_viaje.*, ciudades.nombre AS ciudad FROM agencias_viaje";
     $xSQL .= " INNER JOIN ciudades ON agencias_viaje.idlocalidad = ciudades.id";
-    $xSQL .= " ORDER BY agencias_viaje.idlocalidad";
+    $xSQL .= " ORDER BY agencias_viaje.idlocalidad, agencias_viaje.nombre";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 
