@@ -47,7 +47,7 @@ $app->get("/guiasturismo/areas/{id:[0-9]+}", function (Request $request, Respons
 $app->get("/guiasturismo", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT guias_turismo.id, guias_turismo.nombre, categoria, legajo, ambito, dni, telefono, correo, ciudades.nombre as ciudad FROM guias_turismo";
     $xSQL .= " INNER JOIN ciudades ON ciudades.id = guias_turismo.idciudad";
-    $xSQL .= " ORDER BY ciudades.nombre";
+    $xSQL .= " ORDER BY ciudades.nombre, guias_turismo.nombre";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
