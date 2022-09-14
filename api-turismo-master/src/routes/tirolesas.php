@@ -7,7 +7,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get("/gettirolesas", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT tirolesas.*, ciudades.nombre AS ciudad FROM tirolesas";
     $xSQL .= " INNER JOIN ciudades ON tirolesas.idlocalidad = ciudades.id";
-    $xSQL .= " ORDER BY ciudades.idlocalidad";
+    $xSQL .= " ORDER BY tirolesas.idlocalidad";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 
@@ -15,9 +15,9 @@ $app->get("/gettirolesas", function (Request $request, Response $response, array
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
-$app->get("/casascambio/ciudades", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM casas_cambio";
-    $xSQL .= " INNER JOIN ciudades ON casas_cambio.idlocalidad = ciudades.id";
+$app->get("/tirolesas/ciudades", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM tirolesas";
+    $xSQL .= " INNER JOIN ciudades ON tirolesas.idlocalidad = ciudades.id";
     $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
     $xSQL .= " ORDER BY ciudades.id";
     $respuesta = dbGet($xSQL);
@@ -93,7 +93,7 @@ $app->post("/addtirolesas", function (Request $request, Response $response, arra
 
 /* Muestras los datos de una agencia determinada */
 $app->get("/casacambio/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM casas_cambio WHERE id = " . $args["id"];
+    $xSQL = "SELECT * FROM tirolesas WHERE id = " . $args["id"];
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
@@ -137,7 +137,7 @@ $app->post("/updatecasacambio/{id:[0-9]+}", function (Request $request, Response
         //Imágenes
         //Eliminar de $parsedBody id
         unset($parsedBody["id"]);
-        $respuesta = dbPatchWithData("casas_cambio", $args["id"], $parsedBody);
+        $respuesta = dbPatchWithData("tirolesas", $args["id"], $parsedBody);
         if ($respuesta->err) {
             return $response
                 ->withStatus(409) //Conflicto
@@ -162,7 +162,7 @@ $app->post("/updatecasacambio/{id:[0-9]+}", function (Request $request, Response
 });
 
 $app->delete("/casacambio/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $respuesta = dbDelete("casas_cambio", $args["id"]);
+    $respuesta = dbDelete("tirolesas", $args["id"]);
    
     return $response
         ->withStatus(200) //Ok
