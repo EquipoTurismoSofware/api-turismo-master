@@ -183,8 +183,8 @@
     require "../src/routes/aeropuertos.php";
     //Estadisticas
     require "../src/routes/estadisticas.php";
-    //Casas de cambios
-    require "../src/routes/casasdecambio.php";
+    //Tirolesas
+    require "../src/routes/tirolesas.php";
     //Alquileres de autos
     require "../src/routes/alquileresauto.php";
     //Zonas

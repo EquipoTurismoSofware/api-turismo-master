@@ -4,10 +4,10 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 //Obtener todas las Agencias de viajes 
-$app->get("/casascambio", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT casas_cambio.*, ciudades.nombre AS ciudad FROM casas_cambio";
-    $xSQL .= " INNER JOIN ciudades ON casas_cambio.idlocalidad = ciudades.id";
-    $xSQL .= " ORDER BY casas_cambio.idlocalidad";
+$app->get("/gettirolesas", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT tirolesas.*, ciudades.nombre AS ciudad FROM tirolesas";
+    $xSQL .= " INNER JOIN ciudades ON tirolesas.idlocalidad = ciudades.id";
+    $xSQL .= " ORDER BY ciudades.idlocalidad";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200) 
@@ -29,7 +29,7 @@ $app->get("/casascambio/ciudades", function (Request $request, Response $respons
 
 //Guías de Turismo
 
-$app->post("/addcasacambio", function (Request $request, Response $response, array $args) {
+$app->post("/addtirolesas", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "idlocalidad" => array(
             "numeric" => true,
@@ -52,16 +52,29 @@ $app->post("/addcasacambio", function (Request $request, Response $response, arr
             "max" => 150,
             "tag" => "web"
         ),
-        
-        "horarioCierre" => array(
+        "icon" => array(
             "max" => 150,
-            "tag" => "horarioCierre"
+            "tag" => "icon"
         ),
+        
+        "url" => array(
+            "max" => 150,
+            "tag" => "url"
+        ),
+        "titular" => array(
+            "max" => 150,
+            "tag"=>"titular"
+        ),
+        "vencimiento" => array(
+            "max" =>150,
+            "tag" =>"vencimiento"
+        )
+
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
-        $respuesta = dbPostWithData("casas_cambio", $parsedBody);
+        $respuesta = dbPostWithData("tirolesas", $parsedBody);
         return $response
             ->withStatus(201) //Created
             ->withHeader("Content-Type", "application/json")
