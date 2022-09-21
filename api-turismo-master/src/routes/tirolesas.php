@@ -92,7 +92,7 @@ $app->post("/addtirolesas", function (Request $request, Response $response, arra
 });
 
 /* Muestras los datos de una agencia determinada */
-$app->get("/casacambio/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+$app->get("/tirolesa/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $xSQL = "SELECT * FROM tirolesas WHERE id = " . $args["id"];
     $respuesta = dbGet($xSQL);
     return $response
@@ -102,7 +102,7 @@ $app->get("/casacambio/{id:[0-9]+}", function (Request $request, Response $respo
 });
 
 //Guardar los cambios de una un guia
-$app->post("/updatecasacambio/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+$app->post("/updatetirolesa/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "idlocalidad" => array(
             "numeric" => true,
@@ -125,10 +125,22 @@ $app->post("/updatecasacambio/{id:[0-9]+}", function (Request $request, Response
             "max" => 150,
             "tag" => "web"
         ),
-        
-        "horarioCierre" => array(
+        "icon" => array(
             "max" => 150,
-            "tag" => "horarioCierre"
+            "tag" => "icon"
+        ),
+        
+        "url" => array(
+            "max" => 150,
+            "tag" => "url"
+        ),
+        "titular" => array(
+            "max" => 150,
+            "tag"=>"titular"
+        ),
+        "vencimiento" => array(
+            "max" =>150,
+            "tag" =>"vencimiento"
         )
     );
     $validar = new Validate();
@@ -161,7 +173,7 @@ $app->post("/updatecasacambio/{id:[0-9]+}", function (Request $request, Response
     }
 });
 
-$app->delete("/casacambio/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+$app->delete("/deltirolesa/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $respuesta = dbDelete("tirolesas", $args["id"]);
    
     return $response
