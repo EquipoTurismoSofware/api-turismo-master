@@ -205,8 +205,14 @@
     require "../src/routes/galeria_localidades.php";
     //Tag
     require "../src/routes/tag.php";
-
+    // Cajeros
+    require "../src/routes/cajeros.php";
+    // Terminales 
+    require "../src/routes/terminales.php";
+    // Estacionamiento 
+    require "../src/routes/estacionamientos.php";
     //app-turismo
+
     
     //usuarios
    //require "../src/routes/app-turismo/usuarios.php";
