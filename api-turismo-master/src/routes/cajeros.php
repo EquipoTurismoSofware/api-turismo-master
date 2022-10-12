@@ -5,7 +5,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
    //Todas las Oficinas Turísticas
    $app->get("/getcajeros", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM cajeros";
+    $xSQL = "SELECT bancos.nombre as nombre, cajeros.* FROM cajeros, bancos";
+    $xSQL .= " WHERE cajeros.tpo_bco = bancos.id";
     $respuesta = dbGet($xSQL);
     return $response
         ->withStatus(200)
