@@ -211,9 +211,10 @@
     require "../src/routes/terminales.php";
     // Estacionamiento 
     require "../src/routes/estacionamientos.php";
-    //app-turismo
-
+    // Vehiculos (Remis o Taxi)
+    require "../src/routes/vehiculos.php";
     
+    //app-turismo
     //usuarios
    //require "../src/routes/app-turismo/usuarios.php";
 

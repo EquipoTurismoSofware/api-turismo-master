@@ -1,37 +1,36 @@
-<?php 
-
+<?php
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-//Obtener todas las tirolesas de viajes 
-$app->get("/gettirolesas", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT tirolesas.*, ciudades.nombre AS ciudad FROM tirolesas";
-    $xSQL .= " INNER JOIN ciudades ON tirolesas.idlocalidad = ciudades.id";
-    $xSQL .= " ORDER BY tirolesas.idlocalidad";
+//Lista todos los tipos de vehiculos
+$app->get("/gettipovehiculos", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT tipo_vehiculo.* FROM tipo_vehiculo";
     $respuesta = dbGet($xSQL);
     return $response
-        ->withStatus(200) 
+        ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-
-$app->get("/tirolesas/ciudades", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT DISTINCT ciudades.foto, ciudades.nombre AS ciudad, ciudades.id, zonas_ciudades.idzona AS ZonaId FROM tirolesas";
-    $xSQL .= " INNER JOIN ciudades ON tirolesas.idlocalidad = ciudades.id";
-    $xSQL .= " INNER JOIN zonas_ciudades ON ciudades.id= zonas_ciudades.idciudad";
-    $xSQL .= " ORDER BY ciudades.id";
+//Lista todoas las vehiculos  
+$app->get("/getvehiculos", function (Request $request, Response $response, array $args) {
+    $xSQL = "SELECT vehiculos.*, ciudades.nombre AS ciudad FROM vehiculos";
+    $xSQL .= " INNER JOIN ciudades ON vehiculos.idlocalidad = ciudades.id";
+    $xSQL .= " ORDER BY vehiculos.idlocalidad";
     $respuesta = dbGet($xSQL);
     return $response
-        ->withStatus(200) 
+        ->withStatus(200)
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-
-// Agregar tirolesas 
-
-$app->post("/addtirolesas", function (Request $request, Response $response, array $args) {
+// Agregar vehiculo
+$app->post("/addvehiculo", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "idlocalidad" => array(
+            "numeric" => true,
+            "mayorcero" => 0,
+            "tag" => "Identificador de Ciudad"
+        ),
+        "tipovehiculo" => array(
             "numeric" => true,
             "mayorcero" => 0,
             "tag" => "Identificador de Ciudad"
@@ -40,7 +39,7 @@ $app->post("/addtirolesas", function (Request $request, Response $response, arra
             "max" => 150,
             "tag" => "nombre"
         ),
-        "direccion" => array(
+        "domicilio" => array(
             "max" => 150,
             "tag" => "domicilio"
         ),
@@ -48,33 +47,28 @@ $app->post("/addtirolesas", function (Request $request, Response $response, arra
             "max" => 150,
             "tag" => "telefono"
         ),
+        "email" => array(
+            "max" => 150,
+            "tag" => "mail"
+        ), 
         "web" => array(
             "max" => 150,
             "tag" => "web"
-        ),
-        "icon" => array(
+        ), 
+        "latitud" => array(
             "max" => 150,
-            "tag" => "icon"
+            "tag" => "latitud"
         ),
-        
-        "url" => array(
+        "longitud" => array(
             "max" => 150,
-            "tag" => "url"
-        ),
-        "titular" => array(
-            "max" => 150,
-            "tag"=>"titular"
-        ),
-        "vencimiento" => array(
-            "max" =>150,
-            "tag" =>"vencimiento"
+            "tag" => "longitud"
         )
 
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
         $parsedBody = $request->getParsedBody();
-        $respuesta = dbPostWithData("tirolesas", $parsedBody);
+        $respuesta = dbPostWithData("vehiculos", $parsedBody);
         return $response
             ->withStatus(201) //Created
             ->withHeader("Content-Type", "application/json")
@@ -90,21 +84,15 @@ $app->post("/addtirolesas", function (Request $request, Response $response, arra
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 });
-
-/* Muestras los datos de una tirolesa determinada */
-$app->get("/tirolesa/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $xSQL = "SELECT * FROM tirolesas WHERE id = " . $args["id"];
-    $respuesta = dbGet($xSQL);
-    return $response
-        ->withStatus(200)
-        ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-});
-
 //Guardar los cambios de una un tirolesa 
-$app->post("/updatetirolesa/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+$app->post("/updavehiculo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $reglas = array(
         "idlocalidad" => array(
+            "numeric" => true,
+            "mayorcero" => 0,
+            "tag" => "Identificador de Ciudad"
+        ),
+        "tipovehiculo" => array(
             "numeric" => true,
             "mayorcero" => 0,
             "tag" => "Identificador de Ciudad"
@@ -113,7 +101,7 @@ $app->post("/updatetirolesa/{id:[0-9]+}", function (Request $request, Response $
             "max" => 150,
             "tag" => "nombre"
         ),
-        "direccion" => array(
+        "domicilio" => array(
             "max" => 150,
             "tag" => "domicilio"
         ),
@@ -121,27 +109,23 @@ $app->post("/updatetirolesa/{id:[0-9]+}", function (Request $request, Response $
             "max" => 150,
             "tag" => "telefono"
         ),
+        "email" => array(
+            "max" => 150,
+            "tag" => "mail"
+        ), 
         "web" => array(
             "max" => 150,
             "tag" => "web"
-        ),
-        "icon" => array(
+        ), 
+        "latitud" => array(
             "max" => 150,
-            "tag" => "icon"
+            "tag" => "latitud"
         ),
-        
-        "url" => array(
+        "longitud" => array(
             "max" => 150,
-            "tag" => "url"
-        ),
-        "titular" => array(
-            "max" => 150,
-            "tag"=>"titular"
-        ),
-        "vencimiento" => array(
-            "max" =>150,
-            "tag" =>"vencimiento"
+            "tag" => "longitud"
         )
+
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
@@ -149,7 +133,7 @@ $app->post("/updatetirolesa/{id:[0-9]+}", function (Request $request, Response $
         //Imágenes
         //Eliminar de $parsedBody id
         unset($parsedBody["id"]);
-        $respuesta = dbPatchWithData("tirolesas", $args["id"], $parsedBody);
+        $respuesta = dbPatchWithData("vehiculos", $args["id"], $parsedBody);
         if ($respuesta->err) {
             return $response
                 ->withStatus(409) //Conflicto
@@ -172,13 +156,12 @@ $app->post("/updatetirolesa/{id:[0-9]+}", function (Request $request, Response $
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 });
-
-$app->delete("/deltirolesa/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-    $respuesta = dbDelete("tirolesas", $args["id"]);   
+// Elimina un Vehiculo 
+$app->delete("/delvehiculo/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+    $respuesta = dbDelete("vehiculos", $args["id"]);
     return $response
         ->withStatus(200) //Ok
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-
 ?>
