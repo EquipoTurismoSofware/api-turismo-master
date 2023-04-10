@@ -23,26 +23,6 @@ $app->get("/getcajeros", function (Request $request, Response $response, array $
         ->withHeader("Content-Type", "application/json")
         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
-/* Muestras los datos de una cajero determinada */
-// $app->get("/cajero/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
-//     $xSQL = "SELECT * FROM cajeros WHERE id = " . $args["id"];
-//     $respuesta = dbGet($xSQL);
-//     return $response
-//         ->withStatus(200)
-//         ->withHeader("Content-Type", "application/json")
-//         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-// });
-// //Lista cajeros por localidad
-// $app->get("/cajeros/localidad", function (Request $request, Response $response, array $args) {
-//     $xSQL = " SELECT bancos.nombre as nombre, cajeros.*  FROM cajeros, bancos ";
-//     $xSQL .= " WHERE cajeros.tpo_bco = bancos.id";
-//     $xSQL .= " AND  cajeros.idlocalidad = " . $args["id"];
-//     $respuesta = dbGet($xSQL);
-//     return $response
-//         ->withStatus(200)
-//         ->withHeader("Content-Type", "application/json")
-//         ->write(json_encode($respuesta, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-// });
 
 /* Muestras los datos de una cajero determinada */
 $app->get("/cajero/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
@@ -98,8 +78,8 @@ $app->post("/addcajero", function (Request $request, Response $response, array $
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 });
-//Guardar los cambios de una un cajero
-$app->post("/updatecajero/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
+
+$app->post("/upcajero/{id:[0-9]+}", function (Request $request, Response $response, array $args){
     $reglas = array(
         "idlocalidad" => array(
             "numeric" => true,
@@ -107,8 +87,9 @@ $app->post("/updatecajero/{id:[0-9]+}", function (Request $request, Response $re
             "tag" => "Identificador de Ciudad"
         ),
         "tpo_bco" => array(
+            "numeric" => true,
             "max" => 150,
-            "tag" => "Nombre del Banco"
+            "tag" => "Id del Banco"
         ),
         "domicilio" => array(
             "max" => 150,
@@ -128,8 +109,18 @@ $app->post("/updatecajero/{id:[0-9]+}", function (Request $request, Response $re
         $parsedBody = $request->getParsedBody();
         //Imágenes
         //Eliminar de $parsedBody id
+        ///
+        $data = array(
+            "idlocalidad" => $parsedBody["idlocalidad"],
+            "tpo_bco" =>$parsedBody["tpo_bco"],
+            "domicilio" => $parsedBody["domicilio"],
+            "latitud" => $parsedBody["latitud"],
+            "longitud" => $parsedBody["longitud"],
+        );
+        //
+
         unset($parsedBody["id"]);
-        $respuesta = dbPatchWithData("cajeros", $args["id"], $parsedBody);
+        $respuesta = dbPatchWithData("cajeros", $args["id"], $data);
         if ($respuesta->err) {
             return $response
                 ->withStatus(409) //Conflicto
@@ -151,7 +142,8 @@ $app->post("/updatecajero/{id:[0-9]+}", function (Request $request, Response $re
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($resperr, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
-});
+});  
+
 // Elimina un cajero
 $app->delete("/delcajero/{id:[0-9]+}", function (Request $request, Response $response, array $args) {
     $respuesta = dbDelete("cajeros", $args["id"]);
