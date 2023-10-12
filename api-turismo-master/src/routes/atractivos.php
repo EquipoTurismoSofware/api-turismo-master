@@ -763,6 +763,10 @@ $app->post("/atractivo/new/{id:[0-9]+}", function (Request $request, Response $r
         "zonaMoto" => array(
             "tag" => "zonaMoto"
         )
+        ,
+        "activo" => array(
+            "tag" => "activo"
+        )
     );
     $validar = new Validate();
     if ($validar->validar($request->getParsedBody(), $reglas)) {
